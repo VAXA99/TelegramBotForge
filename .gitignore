@@ -1,0 +1,15 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+.idea/
+/_ReSharper.Caches/
+
+# Packages built with dotnet pack
+artifacts/
+*.nupkg
+*.snupkg
+
+# Rider user settings and local secrets
+*.DotSettings.user
+appsettings.Development.json

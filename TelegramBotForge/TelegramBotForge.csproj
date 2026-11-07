@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>TelegramBotForge</RootNamespace>
+        <PackageId>TelegramBotForge</PackageId>
+        <Description>Build Telegram bots quickly with MVC: controllers with attribute routes for commands, buttons, text, media, locations and Telegram Stars payments, plus declarative views, conversation state and middleware.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Abstractions only: the application chooses its own host and versions. -->
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1"/>
+        <PackageReference Include="Telegram.Bot" Version="22.10.3.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- UseWebhook() in TelegramBotForge.AspNetCore switches the internal update mode. -->
+        <InternalsVisibleTo Include="TelegramBotForge.AspNetCore"/>
+    </ItemGroup>
+
+</Project>

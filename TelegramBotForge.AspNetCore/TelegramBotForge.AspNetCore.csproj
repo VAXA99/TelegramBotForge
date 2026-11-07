@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <PackageId>TelegramBotForge.AspNetCore</PackageId>
+        <Description>Webhook mode for TelegramBotForge bots on ASP.NET Core: maps the endpoint that receives updates from Telegram.</Description>
+        <PackageTags>$(PackageTags);aspnetcore;webhook</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TelegramBotForge\TelegramBotForge.csproj"/>
+    </ItemGroup>
+
+</Project>

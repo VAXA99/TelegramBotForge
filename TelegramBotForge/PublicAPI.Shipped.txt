@@ -835,3 +835,8 @@ virtual TelegramBotForge.Middleware.UpdateLoggingMiddleware.InvokeAsync(Telegram
 virtual TelegramBotForge.Middleware.UpdateLoggingMiddleware.LogUpdate(TelegramBotForge.BotContext! context, string! action, TelegramBotForge.Results.IBotResult? result, System.TimeSpan elapsed) -> void
 TelegramBotForge.Controllers.FromServicesAttribute
 TelegramBotForge.Controllers.FromServicesAttribute.FromServicesAttribute() -> void
+TelegramBotForge.Views.MessageBuilder.Page<T>(System.Collections.Generic.IReadOnlyList<T>! items, int page, int pageSize, System.Action<TelegramBotForge.Views.MessageBuilder!, System.Collections.Generic.IReadOnlyList<T>!, TelegramBotForge.Views.PageInfo!>! renderPage, System.Func<int, string!>! route, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.PageInfo.FirstItemNumber.get -> int?
+TelegramBotForge.Views.PageInfo.LastItemNumber.get -> int?
+TelegramBotForge.Views.PageInfo.PageSize.get -> int?
+TelegramBotForge.Views.PageInfo.TotalItems.get -> int?

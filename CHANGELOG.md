@@ -2,14 +2,6 @@
 
 All notable changes to TelegramBotForge. The public API of each package is listed in its `PublicAPI.Shipped.txt`.
 
-## Unreleased
-
-### Added
-
-- `Page(items, page, pageSize, renderPage, route, configure)`: a page of a list with any content (text, several buttons
-  per item, a table in rich views), with the pagination row after it. `PageInfo` now has `TotalItems`, `PageSize`,
-  `FirstItemNumber` and `LastItemNumber`. The existing `Page(..., item, ...)` works as before.
-
 ## 0.2.0
 
 ### New packages
@@ -40,6 +32,9 @@ All notable changes to TelegramBotForge. The public API of each package is liste
 - Actions can take registered services as parameters, optionally marked `[FromServices]`.
 - A warning, logged once, when `Answer(...)` can't be shown because buttons are answered on arrival.
 - Each package lists its public API in `PublicAPI.Shipped.txt`, checked on every build.
+- `Page(items, page, pageSize, renderPage, route, configure)`: a page of a list with any content (text, several buttons
+  per item, a table in rich views), with the pagination row after it. `PageInfo` now has `TotalItems`, `PageSize`,
+  `FirstItemNumber` and `LastItemNumber`. The existing `Page(..., item, ...)` works as before.
 
 ### Changed
 

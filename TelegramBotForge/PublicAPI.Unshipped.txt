@@ -1,1 +1,6 @@
 #nullable enable
+TelegramBotForge.Views.MessageBuilder.Page<T>(System.Collections.Generic.IReadOnlyList<T>! items, int page, int pageSize, System.Action<TelegramBotForge.Views.MessageBuilder!, System.Collections.Generic.IReadOnlyList<T>!, TelegramBotForge.Views.PageInfo!>! renderPage, System.Func<int, string!>! route, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.PageInfo.FirstItemNumber.get -> int?
+TelegramBotForge.Views.PageInfo.LastItemNumber.get -> int?
+TelegramBotForge.Views.PageInfo.PageSize.get -> int?
+TelegramBotForge.Views.PageInfo.TotalItems.get -> int?

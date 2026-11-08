@@ -293,6 +293,31 @@ message.Page(products, page, pageSize: 5,
     route: page => $"catalog:{page}");
 ```
 
+When a page needs more than one button per item, pass `renderPage` instead of `item`. The items of the page are
+picked for you; your renderer adds whatever the page shows, and the pagination row comes after it:
+
+```csharp
+message.Page(orders, page, pageSize: 5,
+    renderPage: (body, visible, info) =>
+    {
+        if (visible.Count == 0)
+        {
+            body.Line($"No orders yet.");
+            return;
+        }
+
+        body.Line($"<b>Orders {info.FirstItemNumber}–{info.LastItemNumber} of {info.TotalItems}</b>");
+        foreach (var order in visible)
+            body.Row(Button($"#{order.Id} · {order.Total}⭐", $"order:{order.Id}"), Button("❌", $"cancel:{order.Id}"));
+    },
+    route: p => $"orders:{p}",
+    configure: options => options.Style(PaginationStyle.FirstLast));
+```
+
+Pages start at 1, and a page out of range shows the nearest one. An empty list is one empty page: the renderer gets no
+items, so it can say so, and the row is hidden unless `ShowSinglePage()` is set. In a rich view (`[View(Rich = true)]`)
+a page can also be a whole table: `body.Line(Raw("<table>…</table>"))`, with values HTML-escaped by you.
+
 Labels, edge behavior and layout can be changed per call, per view (`ConfigurePagination`) or for the whole bot (`ConfigureViews`).
 
 Telegram's limits (message length, button data size, buttons per row) are checked when a view is rendered, not when Telegram rejects the request.

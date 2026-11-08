@@ -177,13 +177,22 @@ public sealed class PageInfo
     private readonly PaginationOptions _options;
     private readonly bool _rich;
 
-    internal PageInfo(int page, int totalPages, Func<int, string> route, PaginationOptions options, bool rich)
+    internal PageInfo(int page, int totalPages, Func<int, string> route, PaginationOptions options, bool rich,
+        int? totalItems = null, int? pageSize = null)
     {
         Page = page;
         TotalPages = totalPages;
         _route = route;
         _options = options;
         _rich = rich;
+        TotalItems = totalItems;
+        PageSize = pageSize;
+
+        if (totalItems is > 0 && pageSize is { } size)
+        {
+            FirstItemNumber = (page - 1) * size + 1;
+            LastItemNumber = Math.Min(page * size, totalItems.Value);
+        }
     }
 
     /// <summary>Gets the current page, starting at 1.</summary>
@@ -191,6 +200,19 @@ public sealed class PageInfo
 
     /// <summary>Gets the number of pages, at least 1.</summary>
     public int TotalPages { get; }
+
+    /// <summary>Gets the number of items in the whole list; <c>null</c> for a row made with <c>Pagination(...)</c>, which has no list.</summary>
+    public int? TotalItems { get; }
+
+    /// <summary>Gets the number of items per page; <c>null</c> for a row made with <c>Pagination(...)</c>.</summary>
+    public int? PageSize { get; }
+
+    /// <summary>Gets the number of the first item on this page, starting at 1, for "6–10 of 23";
+    /// <c>null</c> when the list is empty or for <c>Pagination(...)</c>.</summary>
+    public int? FirstItemNumber { get; }
+
+    /// <summary>Gets the number of the last item on this page; <c>null</c> when the list is empty or for <c>Pagination(...)</c>.</summary>
+    public int? LastItemNumber { get; }
 
     /// <summary>Gets a value indicating whether this is the first page.</summary>
     public bool IsFirst => Page <= 1;
@@ -245,5 +267,35 @@ public sealed class PageInfo
         }
 
         return custom is not null ? custom(this) : Buttons.Callback(text, Route(target));
+    }
+}
+
+/// <summary>
+/// The pages of a list: shared by both <c>Page(...)</c> overloads, so they count and clamp the same way.
+/// </summary>
+/// <param name="Page">The current page, from 1 to <paramref name="TotalPages"/>.</param>
+/// <param name="TotalPages">The number of pages, at least 1 (an empty list has one empty page).</param>
+/// <param name="Skip">The number of items before the current page.</param>
+/// <param name="Take">The number of items on the current page.</param>
+internal readonly record struct PageWindow(int Page, int TotalPages, int Skip, int Take)
+{
+    public static PageWindow Of(int itemCount, int page, int pageSize)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(itemCount);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
+
+        // In long: a huge list with a huge page size does not overflow.
+        var totalPages = (int)Math.Max(1, ((long)itemCount + pageSize - 1) / pageSize);
+        var current = Math.Clamp(page, 1, totalPages);
+        var skip = (int)Math.Min((long)(current - 1) * pageSize, itemCount);
+        return new PageWindow(current, totalPages, skip, Math.Min(pageSize, itemCount - skip));
+    }
+
+    public IReadOnlyList<T> Slice<T>(IReadOnlyList<T> items)
+    {
+        var page = new T[Take];
+        for (var i = 0; i < Take; i++)
+            page[i] = items[Skip + i];
+        return page;
     }
 }

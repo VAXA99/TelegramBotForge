@@ -148,15 +148,13 @@ public sealed class MessageBuilder
 
         var options = CreatePaginationOptions(configure);
         var total = Math.Max(1, totalPages);
-        var info = new PageInfo(Math.Clamp(page, 1, total), total, route, options, _rich);
-
-        foreach (var row in options.BuildRows(info))
-            AddInlineRow(row);
+        AddPaginationRows(options, new PageInfo(Math.Clamp(page, 1, total), total, route, options, _rich));
         return this;
     }
 
     /// <summary>
     /// Shows one page of a list: a button for each item of the page, then the pagination row.
+    /// For anything else on the page (several buttons per item, text, a table), use the overload with <c>renderPage</c>.
     /// </summary>
     /// <param name="items">All items.</param>
     /// <param name="page">The current page, starting at 1. Out-of-range values are moved into range.</param>
@@ -174,14 +172,57 @@ public sealed class MessageBuilder
         int perRow = 1,
         Action<PaginationOptions>? configure = null)
     {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentOutOfRangeException.ThrowIfLessThan(perRow, 1);
+
+        return Page(items, page, pageSize, (body, visible, _) => body.Buttons(visible, item, perRow), route, configure);
+    }
+
+    /// <summary>
+    /// Shows one page of a list with content you write: the items of the page are picked for you, your
+    /// <paramref name="renderPage"/> adds whatever the page shows (text, a table, several buttons per item), and the
+    /// pagination row is added after it.
+    /// </summary>
+    /// <param name="items">All items.</param>
+    /// <param name="page">The current page, starting at 1. Out-of-range values are moved into range.</param>
+    /// <param name="pageSize">The number of items per page.</param>
+    /// <param name="renderPage">Adds the content of the page to this builder. It gets the items of the page (none for an
+    /// empty list, so it can say so) and the page: its number, the number of pages and the numbers of the items shown.</param>
+    /// <param name="route">The button data for a page, for example <c>p => $"products:{p}"</c>.</param>
+    /// <param name="configure">Overrides for the pagination row; see <see cref="PaginationOptions"/>.</param>
+    /// <example>
+    /// <code>
+    /// message.Page(orders, page, pageSize: 5,
+    ///     renderPage: (body, visible, info) =>
+    ///     {
+    ///         body.Line($"&lt;b&gt;Orders {info.FirstItemNumber}–{info.LastItemNumber} of {info.TotalItems}&lt;/b&gt;");
+    ///         foreach (var order in visible)
+    ///             body.Row(Button($"#{order.Id}", $"order:{order.Id}"), Button("❌", $"cancel:{order.Id}"));
+    ///     },
+    ///     route: p => $"orders:{p}",
+    ///     configure: options => options.Style(PaginationStyle.FirstLast));
+    /// </code>
+    /// </example>
+    public MessageBuilder Page<T>(
+        IReadOnlyList<T> items,
+        int page,
+        int pageSize,
+        Action<MessageBuilder, IReadOnlyList<T>, PageInfo> renderPage,
+        Func<int, string> route,
+        Action<PaginationOptions>? configure = null)
+    {
         ArgumentNullException.ThrowIfNull(items);
         ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
+        ArgumentNullException.ThrowIfNull(renderPage);
+        ArgumentNullException.ThrowIfNull(route);
 
-        var totalPages = Math.Max(1, (items.Count + pageSize - 1) / pageSize);
-        var current = Math.Clamp(page, 1, totalPages);
+        var window = PageWindow.Of(items.Count, page, pageSize);
+        var options = CreatePaginationOptions(configure);
+        var info = new PageInfo(window.Page, window.TotalPages, route, options, _rich, items.Count, pageSize);
 
-        Buttons(items.Skip((current - 1) * pageSize).Take(pageSize), item, perRow);
-        return Pagination(current, totalPages, route, configure);
+        renderPage(this, window.Slice(items), info);
+        AddPaginationRows(options, info);
+        return this;
     }
 
     /// <summary>
@@ -288,6 +329,12 @@ public sealed class MessageBuilder
         };
 
         return new BotMessage(text, keyboard, ParseMode.Html, !_linkPreview, _media, _rich);
+    }
+
+    private void AddPaginationRows(PaginationOptions options, PageInfo info)
+    {
+        foreach (var row in options.BuildRows(info))
+            AddInlineRow(row);
     }
 
     private PaginationOptions CreatePaginationOptions(Action<PaginationOptions>? configure)

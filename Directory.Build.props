@@ -46,10 +46,11 @@
         <NoWarn>$(NoWarn);RS0022;RS0026;RS0027</NoWarn>
     </PropertyGroup>
 
-    <!-- Packages are published from GitHub Actions only, so SourceLink is only needed there
-         (locally it would fail -warnaserror builds while the repository has no remote). -->
-    <ItemGroup Condition="'$(IsPackable)' != 'false' And '$(GITHUB_ACTIONS)' == 'true'">
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    </ItemGroup>
+    <!-- SourceLink is built into the .NET 8+ SDK (a package reference would only pin an older, vulnerable copy).
+         Packages are published from GitHub Actions only, so it is on there; locally it would fail -warnaserror builds
+         of a copy without a git remote. -->
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+        <EnableSourceLink>false</EnableSourceLink>
+    </PropertyGroup>
 
 </Project>

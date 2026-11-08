@@ -53,6 +53,8 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
     private readonly int _parallelPerQueue;
     private readonly ILogger<UpdateQueues> _logger;
     private readonly TimeProvider _time;
+    private readonly IConversationLock? _conversationLock;
+    private readonly bool _collectAlbums;
     private readonly SemaphoreSlim _concurrency;
     private readonly CancellationTokenSource _processing = new();
     private volatile bool _accepting = true;
@@ -64,8 +66,13 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
         IOptions<TelegramBotConfiguration> options,
         TelegramBotBuilder builder,
         ILogger<UpdateQueues> logger,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IConversationLock? conversationLock = null,
+        Routing.ActionRegistry? registry = null)
     {
+        // Albums are collected only for [Album] actions, and only when one consumer reads each queue in order.
+        _collectAlbums = registry?.HasAlbumActions == true && builder.ParallelUpdatesPerQueue == 1;
+        _conversationLock = conversationLock;
         _dispatcher = dispatcher;
         _scopes = scopes;
         _bot = bot;
@@ -76,6 +83,7 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
         _logger = logger;
         _time = timeProvider ?? TimeProvider.System;
         _concurrency = new SemaphoreSlim(_config.MaxGlobalConcurrency, _config.MaxGlobalConcurrency);
+        Telemetry.BotTelemetry.ObserveQueueLength(() => _partitions.Values.Sum(partition => (long)partition.Count));
     }
 
     public async ValueTask EnqueueAsync(Update update, CancellationToken ct)
@@ -236,14 +244,39 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
         try
         {
             // Not cancelled by shutdown: the queue is completed instead, so updates already accepted are finished.
-            await foreach (var item in partition.Reader.ReadAllAsync(CancellationToken.None))
+            QueuedUpdate? carried = null;
+            while (carried is not null || await partition.Reader.WaitToReadAsync(CancellationToken.None))
             {
+                QueuedUpdate item;
+                if (carried is { } next)
+                {
+                    item = next;
+                    carried = null;
+                }
+                else if (!partition.Reader.TryRead(out item))
+                {
+                    continue;
+                }
+
                 partition.Touch(_time.GetUtcNow());
+
+                // The next items of an album are read now; an update that is not part of it is processed right after.
+                IReadOnlyList<Message>? album = null;
+                if (_collectAlbums && item.Update.Message is { MediaGroupId: { } groupId } first)
+                    (album, carried) = await CollectAlbumAsync(partition, first, groupId);
 
                 await _concurrency.WaitAsync(ct);
                 try
                 {
-                    await _dispatcher.DispatchAsync(item.Update, item.CallbackAnswered, ct);
+                    if (_conversationLock is null)
+                    {
+                        await _dispatcher.DispatchAsync(item.Update, item.CallbackAnswered, ct, album);
+                    }
+                    else
+                    {
+                        await using (await _conversationLock.AcquireAsync(LockKey(partition.Key), ct))
+                            await _dispatcher.DispatchAsync(item.Update, item.CallbackAnswered, ct, album);
+                    }
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested)
                 {
@@ -268,6 +301,43 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
         {
             _logger.LogError(ex, "A queue consumer stopped unexpectedly. Key={Key}", partition.Key);
         }
+    }
+
+    /// <summary>
+    /// Reads the next items of an album from the queue, until none arrives for <c>AlbumWaitMilliseconds</c>.
+    /// Returns the first update that is not part of the album too, so it is processed next and the order is kept.
+    /// </summary>
+    private async Task<(IReadOnlyList<Message> Album, QueuedUpdate? Next)> CollectAlbumAsync(Partition partition, Message first, string groupId)
+    {
+        var items = new List<Message> { first };
+        var wait = TimeSpan.FromMilliseconds(_config.AlbumWaitMilliseconds);
+        QueuedUpdate? other = null;
+
+        while (other is null)
+        {
+            using var quiet = new CancellationTokenSource(wait, _time);
+            QueuedUpdate next;
+            try
+            {
+                // A cancelled read takes nothing from the queue.
+                next = await partition.Reader.ReadAsync(quiet.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (ChannelClosedException)
+            {
+                break;
+            }
+
+            if (next.Update.Message is { } message && message.MediaGroupId == groupId)
+                items.Add(message);
+            else
+                other = next;
+        }
+
+        return (items.OrderBy(message => message.MessageId).ToArray(), other);
     }
 
     /// <summary>
@@ -356,6 +426,16 @@ internal sealed class UpdateQueues : BackgroundService, IBotUpdateQueue
             _ => chatId ?? userId ?? 0
         };
     }
+
+    /// <summary>
+    /// The name of a conversation for <see cref="IConversationLock"/>: the same in every instance of the bot.
+    /// </summary>
+    private string LockKey(long key) => _keyStrategy switch
+    {
+        QueueKeyStrategy.User => "user:",
+        QueueKeyStrategy.ChatAndUser => "chat-user:",
+        _ => "chat:"
+    } + key.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Combines a chat id and a user id into one key. A rare collision only means two conversations share a queue.

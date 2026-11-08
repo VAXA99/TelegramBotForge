@@ -64,9 +64,11 @@ public static class DependencyInjection
 
         services.TryAddSingleton<ITelegramBotClient>(CreateClient);
         services.TryAddSingleton(TimeProvider.System);
+        services.TryAddSingleton<BotIdentity>();
         services.TryAddSingleton<IStateStorage, InMemoryStateStorage>();
         services.TryAddSingleton<IBotResultExecutor, TelegramResultExecutor>();
         services.TryAddSingleton<IBotFiles, TelegramBotFiles>();
+        services.TryAddSingleton<Broadcasting.IBotBroadcaster, Broadcasting.TelegramBotBroadcaster>();
 
         services.TryAddSingleton<UpdateLoggingMiddleware>();
         services.TryAddSingleton<ErrorMiddleware>();
@@ -84,7 +86,8 @@ public static class DependencyInjection
         // Built when the host starts, after the builder is configured; problems in controllers stop the bot right away.
         services.AddSingleton(provider =>
         {
-            var registry = ActionRegistry.Build(builder.Assemblies, builder.BuiltInControllers);
+            var registry = ActionRegistry.Build(builder.Assemblies, builder.BuiltInControllers, builder.GlobalFilters,
+                provider.GetService<IServiceProviderIsService>());
             builder.RunStartupChecks(provider, registry);
             return registry;
         });
@@ -150,7 +153,24 @@ public static class DependencyInjection
             Timeout = TimeSpan.FromSeconds(config.TelegramHttpTimeoutSeconds)
         };
 
-        return new TelegramBotClient(new TelegramBotClientOptions(config.Token, baseUrl), httpClient);
+        var flood = config.FloodControl ?? new TelegramBotFloodControlOptions();
+        var clientOptions = new TelegramBotClientOptions(config.Token, baseUrl)
+        {
+            // Telegram.Bot repeats a request after a 429 when the wait Telegram asks for is at most RetryThreshold seconds.
+            RetryCount = flood.RetryCount,
+            RetryThreshold = flood.MaxRetryAfterSeconds
+        };
+
+        ITelegramBotClient client = new TelegramBotClient(clientOptions, httpClient);
+        client = new Telemetry.TelemetryBotClient(client);
+        if (!flood.Enabled)
+            return client;
+
+        logger.LogInformation(
+            "Flood control: {GlobalPerSecond} messages/s overall, {PrivatePerSecond}/s per private chat (bursts of {Burst}), " +
+            "{GroupPerMinute}/min per group",
+            flood.GlobalPerSecond, flood.PrivateChatPerSecond, flood.PrivateChatBurst, flood.GroupPerMinute);
+        return new FloodControlledBotClient(client, flood, provider.GetRequiredService<ILoggerFactory>().CreateLogger("TelegramBotForge.FloodControl"));
     }
 
     /// <summary>

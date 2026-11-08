@@ -58,7 +58,7 @@ public class RateLimitMiddleware : IBotMiddleware
     public virtual async Task<IBotResult?> InvokeAsync(BotContext context, BotNext next, CancellationToken ct)
     {
         var userId = UpdateDescriber.GetSender(context.Update)?.Id ?? 0;
-        if (!Options.Enabled || Options.ExemptUserIds.Contains(userId) || IsPayment(context))
+        if (!Options.Enabled || Options.ExemptUserIds.Contains(userId) || IsPayment(context) || IsExempt(context))
             return await next(context, ct);
 
         var key = GetLimitKey(context);
@@ -133,6 +133,10 @@ public class RateLimitMiddleware : IBotMiddleware
     /// <summary>
     /// Payments are never limited: a limited check before payment would fail the payment, and a paid order must be delivered.
     /// </summary>
+    // Inline queries arrive while the user types, and membership changes are not messages; neither should use up the limit.
+    private static bool IsExempt(BotContext context) =>
+        context.InlineQuery is not null || context.MembershipChange is not null;
+
     private static bool IsPayment(BotContext context) =>
         context.Update.PreCheckoutQuery is not null || context.Message?.SuccessfulPayment is not null;
 

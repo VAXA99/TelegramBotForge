@@ -42,7 +42,8 @@ public class UpdateLoggingMiddleware : IBotMiddleware
     /// <inheritdoc/>
     public virtual async Task<IBotResult?> InvokeAsync(BotContext context, BotNext next, CancellationToken ct)
     {
-        var trace = UpdateTrace.Begin();
+        // The dispatcher starts the trace; a pipeline run on its own (in your tests) gets a new one.
+        var trace = UpdateTrace.Current ?? UpdateTrace.Begin();
         var stopwatch = Stopwatch.StartNew();
         var chatId = UpdateDescriber.GetChat(context.Update)?.Id ?? 0;
         var userId = UpdateDescriber.GetSender(context.Update)?.Id ?? 0;
@@ -72,7 +73,9 @@ public class UpdateLoggingMiddleware : IBotMiddleware
     protected virtual void LogUpdate(BotContext context, string action, IBotResult? result, TimeSpan elapsed)
     {
         var elapsedMs = (long)elapsed.TotalMilliseconds;
-        var update = UpdateDescriber.Describe(context.Update, Options.IncludeMessageText);
+        var update = context.AlbumMessages is { Count: var count }
+            ? $"album of {count}"
+            : UpdateDescriber.Describe(context.Update, Options.IncludeMessageText);
         var sender = UpdateDescriber.DescribeSender(context.Update);
         var answer = UpdateDescriber.DescribeResult(result);
 

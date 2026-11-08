@@ -21,7 +21,8 @@ internal static class ParameterBinding
         ParameterInfo parameter,
         IReadOnlySet<string> placeholders,
         out ParameterBinder binder,
-        out string? error)
+        out string? error,
+        Microsoft.Extensions.DependencyInjection.IServiceProviderIsService? isService = null)
     {
         var type = parameter.ParameterType;
         var name = parameter.Name ?? string.Empty;
@@ -38,30 +39,56 @@ internal static class ParameterBinding
             return false;
         }
 
+        // [FromServices] (ours or ASP.NET Core's): from the update's DI scope.
+        if (parameter.GetCustomAttributes(inherit: true).Any(attribute => attribute.GetType().Name == "FromServicesAttribute"))
+        {
+            binder = (context, _) => Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(context.Services, type);
+            return true;
+        }
+
         binder = type switch
         {
             _ when type == typeof(BotContext) => (context, _) => context,
             _ when type == typeof(CancellationToken) => (context, _) => context.CancellationToken,
             _ when type == typeof(Update) => (context, _) => context.Update,
-            _ when type == typeof(Message) => (context, _) => context.Message,
+            _ when type == typeof(Message) => (context, _) => context.Message ?? context.EditedMessage,
             _ when type == typeof(CallbackQuery) => (context, _) => context.CallbackQuery,
             _ when type == typeof(User) => (context, _) => context.From,
             _ when type == typeof(Chat) => (context, _) => context.Chat,
             _ when type == typeof(BotMedia) => (context, _) => context.Media,
             _ when type == typeof(Location) => (context, _) => context.Location,
             _ when type == typeof(Venue) => (context, _) => context.Message?.Venue,
+            _ when type == typeof(Contact) => (context, _) => context.Contact,
+            _ when type == typeof(ChatMemberUpdated) => (context, _) => context.MembershipChange,
+            _ when type == typeof(InlineQuery) => (context, _) => context.InlineQuery,
+            _ when type == typeof(IReadOnlyList<BotMedia>) || type == typeof(IEnumerable<BotMedia>) => (context, _) => context.Album,
+            _ when type == typeof(BotMedia[]) => (context, _) => context.Album?.ToArray(),
+            _ when type == typeof(IReadOnlyList<Message>) => (context, _) => context.AlbumMessages,
             _ when type == typeof(StarsOrder) => (context, _) => context.StarsOrder,
             _ when type == typeof(StarsPayment) => (context, _) => context.StarsPayment,
-            _ when type == typeof(string) && name.Equals("text", StringComparison.OrdinalIgnoreCase) => (context, _) => context.Text,
+            _ when type == typeof(string) && name.Equals("text", StringComparison.OrdinalIgnoreCase) => (context, _) => context.Text ?? context.EditedMessage?.Text,
+            _ when type == typeof(string) && name.Equals("query", StringComparison.OrdinalIgnoreCase) => (context, _) => context.InlineQuery?.Query,
+            _ when type == typeof(string) && name.Equals("args", StringComparison.OrdinalIgnoreCase) => (context, _) => context.CommandArgs,
+            _ when type == typeof(string[]) && name.Equals("args", StringComparison.OrdinalIgnoreCase) =>
+                (context, _) => CommandText.Split(context.CommandArgs),
+            _ when type == typeof(System.Globalization.CultureInfo) => (context, _) => context.Culture ?? System.Globalization.CultureInfo.CurrentUICulture,
             _ => null!
         };
 
         if (binder is not null)
             return true;
 
-        error = $"parameter '{name}' ({type.Name}) has no source. An action can take {{placeholder}} values of its route, " +
-                "'string text', BotMedia, Location, Venue, StarsOrder, StarsPayment, BotContext, CancellationToken, Update, Message, CallbackQuery, User or Chat. " +
-                "Services go into the controller's constructor.";
+        // A registered service, like in ASP.NET Core controllers and minimal APIs.
+        if (isService?.IsService(type) == true)
+        {
+            binder = (context, _) => Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(context.Services, type);
+            return true;
+        }
+
+        error = $"parameter '{name}' ({type.Name}) has no source. If it is a service, register it, or put it in the controller's constructor. " +
+                "Otherwise an action can take {placeholders} of its route, 'string text', 'string args' / 'string[] args' (after a command), " +
+                "'string query' (inline queries), BotMedia, IReadOnlyList<BotMedia> (albums), Location, Venue, Contact, ChatMemberUpdated, InlineQuery, " +
+                "StarsOrder, StarsPayment, CultureInfo, BotContext, CancellationToken, Update, Message, CallbackQuery, User or Chat.";
         return false;
     }
 }

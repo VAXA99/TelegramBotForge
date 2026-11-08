@@ -24,7 +24,7 @@ namespace TelegramBotForge;
 ///     .QueueBy(QueueKeyStrategy.ChatAndUser)
 ///     .KeepStateFor(TimeSpan.FromHours(6))
 ///     .UseMiddleware&lt;EnsureUserMiddleware&gt;()
-///     .UseStateStorage&lt;RedisStateStorage&gt;();
+///     .UseStateStorage&lt;MyStateStorage&gt;();
 /// </code>
 /// </example>
 public sealed class TelegramBotBuilder
@@ -198,6 +198,96 @@ public sealed class TelegramBotBuilder
     }
 
     /// <summary>
+    /// Runs a filter around every action, before the filters of controllers and actions.
+    /// <c>[PreCheckout]</c> and <c>[Paid]</c> actions are skipped, so a filter can never lose a payment.
+    /// </summary>
+    /// <param name="lifetime">The lifetime in the DI container. Scoped by default, so it can use scoped services.</param>
+    public TelegramBotBuilder AddFilter<TFilter>(ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        where TFilter : class, Controllers.IBotActionFilter
+    {
+        Services.TryAdd(new ServiceDescriptor(typeof(TFilter), typeof(TFilter), lifetime));
+        if (!_filters.Contains(typeof(TFilter)))
+            _filters.Add(typeof(TFilter));
+        return this;
+    }
+
+    internal IReadOnlyList<Type> GlobalFilters => _filters;
+
+    private readonly List<Type> _filters = [];
+
+    /// <summary>
+    /// Puts your commands in Telegram's <c>/</c> menu when the bot starts, from the <c>[Command]</c> attributes
+    /// that have a <see cref="Controllers.CommandAttribute.Description"/>. Commands limited with <c>[ChatType]</c> to private
+    /// chats or to groups appear only in that menu. This replaces the menu set in @BotFather.
+    /// </summary>
+    /// <remarks>
+    /// With <see cref="UseLocalization"/>, a description can be a key that is translated for every
+    /// language in <see cref="Localization.BotLocalizationOptions.SupportedCultures"/>.
+    /// </remarks>
+    public TelegramBotBuilder RegisterCommands()
+    {
+        RegistersCommands = true;
+        return this;
+    }
+
+    internal bool RegistersCommands { get; private set; }
+
+    /// <summary>
+    /// Sets the culture of every update to the user's language, so <c>IStringLocalizer</c>, <c>.resx</c> resources and
+    /// formatting answer in it. By default the language is the one of the user's Telegram app; register your own
+    /// <see cref="Localization.IBotCultureResolver"/> to use a language stored by your application.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// .UseLocalization(options =>
+    /// {
+    ///     options.DefaultCulture = "en";
+    ///     options.SupportedCultures = ["en", "ru", "ka"];
+    /// })
+    /// .UseCultureResolver&lt;UserLanguageResolver&gt;(); // optional: the language the user picked in your bot
+    /// </code>
+    /// </example>
+    public TelegramBotBuilder UseLocalization(Action<Localization.BotLocalizationOptions>? configure = null)
+    {
+        var options = new Localization.BotLocalizationOptions();
+        configure?.Invoke(options);
+        options.Validate();
+
+        Localization = options;
+        Services.Replace(ServiceDescriptor.Singleton(options));
+        Services.TryAddScoped<Localization.IBotCultureResolver, Localization.TelegramLanguageCultureResolver>();
+        Services.TryAddSingleton<Localization.LocalizationMiddleware>();
+        return this;
+    }
+
+    /// <summary>
+    /// Replaces how the user's language is chosen, for example with the language the user picked in your bot and you stored.
+    /// Calls <see cref="UseLocalization"/> with its defaults if it was not called.
+    /// </summary>
+    /// <param name="lifetime">The lifetime in the DI container. Scoped by default, so it can use your database.</param>
+    public TelegramBotBuilder UseCultureResolver<TResolver>(ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        where TResolver : class, Localization.IBotCultureResolver
+    {
+        if (Localization is null)
+            UseLocalization();
+
+        Services.Replace(new ServiceDescriptor(typeof(Localization.IBotCultureResolver), typeof(TResolver), lifetime));
+        return this;
+    }
+
+    internal Localization.BotLocalizationOptions? Localization { get; private set; }
+
+    /// <summary>
+    /// Takes a lock around every update of a conversation, for bots that run as several instances behind a load balancer.
+    /// See <see cref="Hosting.IConversationLock"/>.
+    /// </summary>
+    public TelegramBotBuilder UseConversationLock<TLock>() where TLock : class, Hosting.IConversationLock
+    {
+        Services.Replace(ServiceDescriptor.Singleton<Hosting.IConversationLock, TLock>());
+        return this;
+    }
+
+    /// <summary>
     /// Replaces where conversation states are kept. The default keeps them in memory.
     /// </summary>
     public TelegramBotBuilder UseStateStorage<TStorage>() where TStorage : class, IStateStorage
@@ -241,10 +331,20 @@ public sealed class TelegramBotBuilder
     }
 
     /// <summary>
-    /// The pipeline: built-in middleware, then yours, then Stars payments if enabled, then the state, which the router needs.
+    /// The pipeline: logging, the user's language if enabled, the other built-in middleware, then yours, then Stars payments if enabled, then the state, which the router needs.
     /// </summary>
-    internal IReadOnlyList<Type> GetMiddlewareTypes() =>
-        [.. _builtInMiddleware, .. _middleware, .. (StarsEnabled ? new[] { typeof(StarsMiddleware) } : Array.Empty<Type>()), typeof(StateMiddleware)];
+    internal IReadOnlyList<Type> GetMiddlewareTypes()
+    {
+        var builtIn = _builtInMiddleware.ToList();
+        if (Localization is not null)
+        {
+            // Right after logging: errors, the rate limit message and your middleware already speak the user's language.
+            var logging = builtIn.IndexOf(typeof(UpdateLoggingMiddleware));
+            builtIn.Insert(logging + 1, typeof(Localization.LocalizationMiddleware));
+        }
+
+        return [.. builtIn, .. _middleware, .. (StarsEnabled ? new[] { typeof(StarsMiddleware) } : Array.Empty<Type>()), typeof(StateMiddleware)];
+    }
 
     /// <summary>
     /// Runs the startup checks. Payment routes without <c>AddStars</c> would never match, so they are an error too.

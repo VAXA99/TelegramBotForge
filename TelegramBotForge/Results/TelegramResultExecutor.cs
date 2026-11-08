@@ -26,6 +26,11 @@ public interface IBotResultExecutor
 /// </summary>
 internal sealed class TelegramResultExecutor : IBotResultExecutor
 {
+    private readonly Microsoft.Extensions.Logging.ILogger? _logger;
+    private int _warnedIgnoredAnswer;
+
+    public TelegramResultExecutor(Microsoft.Extensions.Logging.ILogger<TelegramResultExecutor>? logger = null) => _logger = logger;
+
     public async Task ExecuteAsync(BotContext context, IBotResult result, CancellationToken ct)
     {
         switch (result)
@@ -80,6 +85,21 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
                     telegramPaymentChargeId: refund.ChargeId,
                     cancellationToken: ct);
                 break;
+
+            case AnswerInline inline:
+            {
+                var query = context.InlineQuery
+                            ?? throw new InvalidOperationException("AnswerInline can only be returned for an inline query.");
+                await context.Bot.AnswerInlineQuery(
+                    query.Id,
+                    inline.Results,
+                    cacheTime: inline.CacheSeconds,
+                    isPersonal: inline.IsPersonal,
+                    nextOffset: inline.NextOffset,
+                    button: inline.Button,
+                    cancellationToken: ct);
+                break;
+            }
 
             case AnswerCallback answer:
                 await AnswerAsync(context, answer, ct);
@@ -184,14 +204,25 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
         }
     }
 
-    private static async Task AnswerAsync(BotContext context, AnswerCallback answer, CancellationToken ct)
+    private async Task AnswerAsync(BotContext context, AnswerCallback answer, CancellationToken ct)
     {
         var query = context.CallbackQuery
                     ?? throw new InvalidOperationException("AnswerCallback can only be returned for a button press.");
 
         // With CallbackAckMode.Immediate the button was answered before the action ran.
         if (context.CallbackAnswered)
+        {
+            // Telegram takes one answer per press, so a notification can no longer be shown. Said once, so it is noticed.
+            if (answer.Text is not null && _logger is not null && Interlocked.Exchange(ref _warnedIgnoredAnswer, 1) == 0)
+            {
+                Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(_logger,
+                    "Answer(\"{Text}\") of {Action} was not shown: buttons are answered as soon as they are pressed " +
+                    "(CallbackAckMode.Immediate). Call .AckCallbacks(CallbackAckMode.Manual) to show notifications and alerts. " +
+                    "This warning is logged once.", answer.Text, context.HandledBy ?? "the action");
+            }
+
             return;
+        }
 
         await context.Bot.AnswerCallbackQuery(
             callbackQueryId: query.Id,

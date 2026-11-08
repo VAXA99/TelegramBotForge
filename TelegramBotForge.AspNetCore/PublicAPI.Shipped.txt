@@ -1,0 +1,11 @@
+#nullable enable
+const TelegramBotForge.AspNetCore.TelegramBotWebhookExtensions.SecretTokenHeader = "X-Telegram-Bot-Api-Secret-Token" -> string!
+static TelegramBotForge.AspNetCore.TelegramBotHealthCheckExtensions.AddTelegramBot(this Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder! builder, string! name = "telegram", System.Collections.Generic.IEnumerable<string!>? tags = null) -> Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder!
+static TelegramBotForge.AspNetCore.TelegramBotWebhookExtensions.MapTelegramBotWebhook(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string? pattern = null) -> Microsoft.AspNetCore.Builder.IEndpointConventionBuilder!
+static TelegramBotForge.AspNetCore.TelegramBotWebhookExtensions.UseWebhook(this TelegramBotForge.TelegramBotBuilder! builder) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.AspNetCore.TelegramBotHealthCheck
+TelegramBotForge.AspNetCore.TelegramBotHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext! context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult>!
+TelegramBotForge.AspNetCore.TelegramBotHealthCheck.MaxPendingUpdates.get -> int
+TelegramBotForge.AspNetCore.TelegramBotHealthCheck.MaxPendingUpdates.set -> void
+TelegramBotForge.AspNetCore.TelegramBotHealthCheckExtensions
+TelegramBotForge.AspNetCore.TelegramBotWebhookExtensions

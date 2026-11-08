@@ -34,9 +34,10 @@ internal sealed class UnknownCommandController : BotController
 [AttributeUsage(AttributeTargets.Method)]
 internal sealed class UnknownTextAttribute : RouteAttribute
 {
-    internal override int Priority => -10;
+    public override int Priority => -10;
 
-    internal override string Key => "unknown text";
+    public override string Key => "unknown text";
 
-    internal override bool TryMatch(BotContext context, IDictionary<string, string> values) => context.Text is not null;
+    public override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
+        context.Text is not null && !context.IsCommandForAnotherBot;
 }

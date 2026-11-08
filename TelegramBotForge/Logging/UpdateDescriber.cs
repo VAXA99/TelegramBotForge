@@ -16,6 +16,8 @@ internal static class UpdateDescriber
             return callback.Data is { } data ? $"button {Quote(data, includeText)}" : "button";
         if (update.PreCheckoutQuery is { } checkout)
             return $"pre-checkout {checkout.TotalAmount} {checkout.Currency}";
+        if (update.InlineQuery is { } inline)
+            return $"inline query {Quote(inline.Query, includeText)}";
         if (update.MyChatMember is { } change)
             return $"membership {change.OldChatMember.Status} → {change.NewChatMember.Status}".ToLowerInvariant();
 

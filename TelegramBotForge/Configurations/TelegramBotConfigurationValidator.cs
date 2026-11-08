@@ -25,6 +25,8 @@ public sealed class TelegramBotConfigurationValidator : IValidateOptions<Telegra
         RequirePositive(errors, nameof(options.MaxGlobalConcurrency), options.MaxGlobalConcurrency);
         RequirePositive(errors, nameof(options.PerChatQueueCapacity), options.PerChatQueueCapacity);
         RequirePositive(errors, nameof(options.IdleChatTtlSeconds), options.IdleChatTtlSeconds);
+        if (options.AlbumWaitMilliseconds is < 50 or > 5000)
+            errors.Add($"{nameof(options.AlbumWaitMilliseconds)} must be between 50 and 5000, but was {options.AlbumWaitMilliseconds}.");
         RequirePositive(errors, nameof(options.TelegramHttpTimeoutSeconds), options.TelegramHttpTimeoutSeconds);
         RequirePositive(errors, nameof(options.TelegramConnectTimeoutSeconds), options.TelegramConnectTimeoutSeconds);
         RequirePositive(errors, nameof(options.TelegramPooledConnectionIdleTimeoutSeconds), options.TelegramPooledConnectionIdleTimeoutSeconds);
@@ -56,6 +58,22 @@ public sealed class TelegramBotConfigurationValidator : IValidateOptions<Telegra
         {
             RequirePositive(errors, $"{nameof(options.RateLimit)}:{nameof(rateLimit.MaxUpdates)}", rateLimit.MaxUpdates);
             RequirePositive(errors, $"{nameof(options.RateLimit)}:{nameof(rateLimit.PerSeconds)}", rateLimit.PerSeconds);
+        }
+
+        if (options.FloodControl is { } flood)
+        {
+            if (flood.Enabled)
+            {
+                RequirePositive(errors, $"{nameof(options.FloodControl)}:{nameof(flood.GlobalPerSecond)}", flood.GlobalPerSecond);
+                RequirePositive(errors, $"{nameof(options.FloodControl)}:{nameof(flood.PrivateChatPerSecond)}", flood.PrivateChatPerSecond);
+                RequirePositive(errors, $"{nameof(options.FloodControl)}:{nameof(flood.PrivateChatBurst)}", flood.PrivateChatBurst);
+                RequirePositive(errors, $"{nameof(options.FloodControl)}:{nameof(flood.GroupPerMinute)}", flood.GroupPerMinute);
+            }
+
+            if (flood.RetryCount < 0)
+                errors.Add($"{nameof(options.FloodControl)}:{nameof(flood.RetryCount)} must be 0 or greater, but was {flood.RetryCount}.");
+            if (flood.MaxRetryAfterSeconds < 0)
+                errors.Add($"{nameof(options.FloodControl)}:{nameof(flood.MaxRetryAfterSeconds)} must be 0 or greater, but was {flood.MaxRetryAfterSeconds}.");
         }
 
         var stars = options.Stars ?? new TelegramBotStarsOptions();

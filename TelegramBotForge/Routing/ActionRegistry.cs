@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using TelegramBotForge.Controllers;
+using TelegramBotForge.Logging;
 using TelegramBotForge.Results;
 
 namespace TelegramBotForge.Routing;
@@ -18,6 +19,8 @@ internal sealed class ActionDescriptor
     private readonly Func<object?, Task<IBotResult?>> _adaptResult;
     private readonly IReadOnlyDictionary<string, RouteParameter> _routeParameters;
     private readonly HashSet<string>? _states;
+    private readonly BotConstraintAttribute[] _constraints;
+    private readonly FilterSource[] _filters;
 
     public ActionDescriptor(
         Type controllerType,
@@ -26,12 +29,19 @@ internal sealed class ActionDescriptor
         IReadOnlyList<string>? states,
         ParameterBinder[] binders,
         IReadOnlyDictionary<string, RouteParameter> routeParameters,
-        Func<object?, Task<IBotResult?>> adaptResult)
+        Func<object?, Task<IBotResult?>> adaptResult,
+        BotConstraintAttribute[]? constraints = null,
+        FilterSource[]? filters = null)
     {
         ControllerType = controllerType;
         Method = method;
         Routes = routes;
         States = states;
+        _constraints = constraints ?? [];
+        _filters = filters ?? [];
+        ConstraintKey = _constraints.Length == 0
+            ? string.Empty
+            : " when " + string.Join(", ", _constraints.Select(constraint => constraint.Key).Order(StringComparer.Ordinal));
         _states = states is null ? null : new HashSet<string>(states, StringComparer.Ordinal);
         _binders = binders;
         _routeParameters = routeParameters;
@@ -52,6 +62,13 @@ internal sealed class ActionDescriptor
 
     public int Priority { get; }
 
+    public IReadOnlyList<BotConstraintAttribute> Constraints => _constraints;
+
+    /// <summary>
+    /// The conditions of the action as text, so two actions with the same route but different conditions are not duplicates.
+    /// </summary>
+    public string ConstraintKey { get; }
+
     public string DisplayName => $"{ControllerType.Name}.{Method.Name}";
 
     public bool TryMatch(BotContext context, out IReadOnlyDictionary<string, object?> values)
@@ -60,6 +77,12 @@ internal sealed class ActionDescriptor
 
         if (_states is not null && (context.State?.Current is not { } current || !_states.Contains(current)))
             return false;
+
+        foreach (var constraint in _constraints)
+        {
+            if (!constraint.IsMatch(context))
+                return false;
+        }
 
         foreach (var route in Routes)
         {
@@ -71,7 +94,34 @@ internal sealed class ActionDescriptor
         return false;
     }
 
-    public async Task<IBotResult?> InvokeAsync(BotContext context, IReadOnlyDictionary<string, object?> values)
+    public Task<IBotResult?> InvokeAsync(BotContext context, IReadOnlyDictionary<string, object?> values)
+    {
+        if (_filters.Length == 0)
+            return InvokeActionAsync(context, values);
+
+        var action = new BotActionContext(context, ControllerType, Method);
+        return RunFilterAsync(0);
+
+        async Task<IBotResult?> RunFilterAsync(int index)
+        {
+            if (index == _filters.Length)
+                return await InvokeActionAsync(context, values);
+
+            var filter = _filters[index];
+            var calledNext = false;
+            var result = await filter.Resolve(context.Services).OnActionAsync(action, () =>
+            {
+                calledNext = true;
+                return RunFilterAsync(index + 1);
+            }, context.CancellationToken);
+
+            if (!calledNext)
+                UpdateTrace.Mark("stopped by " + filter.Name);
+            return result;
+        }
+    }
+
+    private async Task<IBotResult?> InvokeActionAsync(BotContext context, IReadOnlyDictionary<string, object?> values)
     {
         var controller = (BotController)_controllerFactory(context.Services, null);
         controller.Context = context;
@@ -136,15 +186,31 @@ internal sealed class ActionDescriptor
 /// </summary>
 internal sealed class ActionRegistry
 {
-    private ActionRegistry(IReadOnlyList<ActionDescriptor> actions) => Actions = actions;
+    private ActionRegistry(IReadOnlyList<ActionDescriptor> actions)
+    {
+        Actions = actions;
+        HasAlbumActions = actions.Any(action => action.Routes.Any(route => route is AlbumAttribute));
+    }
 
     public IReadOnlyList<ActionDescriptor> Actions { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether an action takes whole albums, so the queues collect album items.
+    /// </summary>
+    public bool HasAlbumActions { get; }
 
     /// <param name="assemblies">The assemblies with your controllers.</param>
     /// <param name="builtInControllers">Controllers of the library, such as the <c>/paysupport</c> answer.
     /// An action of yours with the same route replaces the built-in one.</param>
-    public static ActionRegistry Build(IEnumerable<Assembly> assemblies, IEnumerable<Type>? builtInControllers = null)
+    /// <param name="globalFilters">Filters added with <c>AddFilter&lt;T&gt;()</c>, for every action except payment actions.</param>
+    /// <param name="isService">Tells which parameter types are services, so actions can take them.</param>
+    public static ActionRegistry Build(
+        IEnumerable<Assembly> assemblies,
+        IEnumerable<Type>? builtInControllers = null,
+        IReadOnlyList<Type>? globalFilters = null,
+        IServiceProviderIsService? isService = null)
     {
+        globalFilters ??= [];
         var errors = new List<string>();
         var actions = new List<ActionDescriptor>();
 
@@ -152,7 +218,8 @@ internal sealed class ActionRegistry
             .Distinct()
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false } &&
-                           type.IsSubclassOf(typeof(BotController)))
+                           type.IsSubclassOf(typeof(BotController)) &&
+                           type.Assembly != typeof(BotController).Assembly)
             .OrderBy(type => type.FullName, StringComparer.Ordinal);
 
         foreach (var controllerType in controllerTypes)
@@ -163,7 +230,7 @@ internal sealed class ActionRegistry
 
             foreach (var method in methods)
             {
-                if (TryCreateAction(controllerType, method, errors) is { } action)
+                if (TryCreateAction(controllerType, method, globalFilters, isService, errors) is { } action)
                     actions.Add(action);
             }
         }
@@ -174,7 +241,7 @@ internal sealed class ActionRegistry
         {
             foreach (var method in controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             {
-                if (TryCreateAction(controllerType, method, errors) is { } action &&
+                if (TryCreateAction(controllerType, method, globalFilters, isService, errors) is { } action &&
                     !action.Routes.Any(route => taken.Contains(RouteKey(action, route))))
                 {
                     actions.Add(action);
@@ -195,16 +262,25 @@ internal sealed class ActionRegistry
         return new ActionRegistry(actions.OrderByDescending(action => action.Priority).ToList());
     }
 
-    private static ActionDescriptor? TryCreateAction(Type controllerType, MethodInfo method, List<string> errors)
+    private static ActionDescriptor? TryCreateAction(
+        Type controllerType, MethodInfo method, IReadOnlyList<Type> globalFilters, IServiceProviderIsService? isService, List<string> errors)
     {
         var name = $"{controllerType.Name}.{method.Name}";
         List<RouteAttribute> routes;
         StateAttribute? state;
+        BotConstraintAttribute[] constraints;
+        List<FilterSource> filters;
 
         try
         {
             routes = method.GetCustomAttributes<RouteAttribute>(inherit: true).ToList();
             state = method.GetCustomAttribute<StateAttribute>(inherit: true);
+            constraints =
+            [
+                .. controllerType.GetCustomAttributes<BotConstraintAttribute>(inherit: true),
+                .. method.GetCustomAttributes<BotConstraintAttribute>(inherit: true)
+            ];
+            filters = [];
         }
         catch (Exception ex)
         {
@@ -236,7 +312,7 @@ internal sealed class ActionRegistry
         var routeParameters = new Dictionary<string, RouteParameter>(StringComparer.OrdinalIgnoreCase);
         foreach (var parameter in method.GetParameters())
         {
-            if (ParameterBinding.TryCreate(parameter, placeholders, out var binder, out var error))
+            if (ParameterBinding.TryCreate(parameter, placeholders, out var binder, out var error, isService))
             {
                 binders.Add(binder);
                 if (!placeholders.Contains(parameter.Name!))
@@ -258,6 +334,19 @@ internal sealed class ActionRegistry
         foreach (var placeholder in placeholders.Where(placeholder => !routeParameters.ContainsKey(placeholder)))
             errors.Add($"{name}: {{{placeholder}}} has no parameter with that name.");
 
+        var usesArgs = method.GetParameters().Any(parameter =>
+            !placeholders.Contains(parameter.Name!) &&
+            string.Equals(parameter.Name, "args", StringComparison.OrdinalIgnoreCase) &&
+            (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(string[])));
+        if (usesArgs && !routes.Any(route => route is CommandAttribute))
+            errors.Add($"{name}: 'args' is what follows a command, but the action has no [Command] route.");
+
+        var isPayment = routes.Any(route => route is Payments.PaidAttribute or Payments.PreCheckoutAttribute);
+        if (!isPayment)
+            filters.AddRange(globalFilters.Select(FilterSource.FromType));
+        filters.AddRange(FilterSource.From(controllerType));
+        filters.AddRange(FilterSource.From(method));
+
         var adapter = ResultAdapter.TryCreate(method, out var returnError);
         if (adapter is null)
             errors.Add($"{name}: {returnError}");
@@ -265,7 +354,8 @@ internal sealed class ActionRegistry
         if (errors.Count > errorCount || adapter is null)
             return null;
 
-        return new ActionDescriptor(controllerType, method, routes, state?.States, binders.ToArray(), routeParameters, adapter);
+        return new ActionDescriptor(controllerType, method, routes, state?.States, binders.ToArray(), routeParameters, adapter,
+            constraints, filters.ToArray());
     }
 
     private static void FindDuplicates(List<ActionDescriptor> actions, List<string> errors)
@@ -280,7 +370,7 @@ internal sealed class ActionRegistry
     }
 
     private static string RouteKey(ActionDescriptor action, RouteAttribute route) =>
-        route.Key + (action.States is null ? string.Empty : " in " + string.Join(", ", action.States));
+        route.Key + (action.States is null ? string.Empty : " in " + string.Join(", ", action.States)) + action.ConstraintKey;
 }
 
 /// <summary>
@@ -295,11 +385,59 @@ internal sealed class AnyMessageRoute : RouteAttribute
 {
     public static readonly AnyMessageRoute Instance = new();
 
-    internal override int Priority => 0;
+    public override int Priority => 0;
 
-    internal override string Key => "any message";
+    public override string Key => "any message";
 
     // Payment notices are messages too, but they only go to [Paid] actions, never to a form step.
-    internal override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
+    public override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
         context.Message is { SuccessfulPayment: null };
+}
+
+/// <summary>
+/// One filter of an action: an attribute instance, or a type created from DI for every update.
+/// </summary>
+internal sealed class FilterSource
+{
+    private readonly IBotActionFilter? _instance;
+    private readonly ObjectFactory? _factory;
+    private readonly Type? _type;
+
+    private FilterSource(IBotActionFilter? instance, Type? type, string name)
+    {
+        _instance = instance;
+        _type = type;
+        _factory = type is null ? null : ActivatorUtilities.CreateFactory(type, Type.EmptyTypes);
+        Name = name;
+    }
+
+    public string Name { get; }
+
+    public static FilterSource FromType(Type type) => new(null, type, type.Name);
+
+    /// <summary>
+    /// The filters declared on a controller or an action, in their order.
+    /// </summary>
+    public static IEnumerable<FilterSource> From(MemberInfo member)
+    {
+        var attributes = member.GetCustomAttributes(inherit: true).OfType<Attribute>().ToList();
+        return attributes
+            .Select((attribute, index) => (attribute, index))
+            .Select(entry => entry.attribute switch
+            {
+                BotFilterAttribute filter => (Order: filter.Order, entry.index, Source: new FilterSource(filter, null, filter.GetType().Name)),
+                UseFilterAttribute use => (Order: use.Order, entry.index, Source: FromType(use.FilterType)),
+                _ => (Order: 0, entry.index, Source: (FilterSource?)null)
+            })
+            .Where(entry => entry.Source is not null)
+            .OrderBy(entry => entry.Order)
+            .ThenBy(entry => entry.index)
+            .Select(entry => entry.Source!);
+    }
+
+    /// <summary>
+    /// A registered filter comes from DI with its lifetime; otherwise it is created for the update with its services.
+    /// </summary>
+    public IBotActionFilter Resolve(IServiceProvider services) =>
+        _instance ?? (IBotActionFilter)(services.GetService(_type!) ?? _factory!(services, null));
 }

@@ -32,11 +32,11 @@ public sealed class PreCheckoutAttribute : RouteAttribute
     /// </summary>
     public string? ProductCode { get; }
 
-    internal override int Priority => ProductCode is null ? 100 : 110;
+    public override int Priority => ProductCode is null ? 100 : 110;
 
-    internal override string Key => "pre-checkout " + (ProductCode ?? "*");
+    public override string Key => "pre-checkout " + (ProductCode ?? "*");
 
-    internal override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
+    public override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
         context.StarsOrder is { } order && (ProductCode is null || order.Product.Code == ProductCode);
 }
 
@@ -68,11 +68,11 @@ public sealed class PaidAttribute : RouteAttribute
     /// </summary>
     public string? ProductCode { get; }
 
-    internal override int Priority => ProductCode is null ? 100 : 110;
+    public override int Priority => ProductCode is null ? 100 : 110;
 
-    internal override string Key => "paid " + (ProductCode ?? "*");
+    public override string Key => "paid " + (ProductCode ?? "*");
 
-    internal override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
+    public override bool TryMatch(BotContext context, IDictionary<string, string> values) =>
         context.StarsPayment is { } payment && (ProductCode is null || payment.ProductCode == ProductCode);
 }
 

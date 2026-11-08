@@ -1,0 +1,837 @@
+#nullable enable
+abstract TelegramBotForge.Controllers.BotConstraintAttribute.IsMatch(TelegramBotForge.BotContext! context) -> bool
+abstract TelegramBotForge.Controllers.BotFilterAttribute.OnActionAsync(TelegramBotForge.Controllers.BotActionContext! action, TelegramBotForge.Controllers.BotActionNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+abstract TelegramBotForge.Controllers.MembershipRouteAttribute.IsMatch(Telegram.Bot.Types.ChatMemberUpdated! change) -> bool
+abstract TelegramBotForge.Controllers.RouteAttribute.Key.get -> string!
+abstract TelegramBotForge.Controllers.RouteAttribute.Priority.get -> int
+abstract TelegramBotForge.Controllers.RouteAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+abstract TelegramBotForge.Views.View.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+abstract TelegramBotForge.Views.View<TModel>.Build(TelegramBotForge.Views.MessageBuilder! message, TModel model) -> void
+const TelegramBotForge.Configurations.TelegramBotConfiguration.SectionName = "TelegramBotConfiguration" -> string!
+const TelegramBotForge.Logging.TelegramBotConsoleFormatter.FormatterName = "telegrambotforge" -> string!
+const TelegramBotForge.Telemetry.BotTelemetry.ActivitySourceName = "TelegramBotForge" -> string!
+const TelegramBotForge.Telemetry.BotTelemetry.MeterName = "TelegramBotForge" -> string!
+const TelegramBotForge.Views.Buttons.NoopData = "tbf:noop" -> string!
+override TelegramBotForge.Controllers.AddedToChatAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.AlbumAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.AlbumAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.AlbumAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.BotBlockedAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.BotUnblockedAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.ButtonTextAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.ButtonTextAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.ButtonTextAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.CallbackAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.CallbackAttribute.ParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
+override TelegramBotForge.Controllers.CallbackAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.CallbackAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.ChatTypeAttribute.IsMatch(TelegramBotForge.BotContext! context) -> bool
+override TelegramBotForge.Controllers.ChatTypeAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.CommandAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.CommandAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.CommandAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.ContactAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.ContactAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.ContactAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.EditedAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.EditedAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.EditedAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.EditedTextAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.EditedTextAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.EditedTextAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.InlineQueryAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.InlineQueryAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.InlineQueryAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.LocationAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.LocationAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.LocationAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.MediaAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.MediaAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.MediaAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.MembershipRouteAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.MembershipRouteAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.RegexAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.RegexAttribute.ParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
+override TelegramBotForge.Controllers.RegexAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.RegexAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Controllers.RemovedFromChatAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.TextAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.TextAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.TextAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Logging.TelegramBotConsoleFormatter.Write<TState>(in Microsoft.Extensions.Logging.Abstractions.LogEntry<TState> logEntry, Microsoft.Extensions.Logging.IExternalScopeProvider? scopeProvider, System.IO.TextWriter! textWriter) -> void
+override TelegramBotForge.Payments.PaidAttribute.Key.get -> string!
+override TelegramBotForge.Payments.PaidAttribute.Priority.get -> int
+override TelegramBotForge.Payments.PaidAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Payments.PreCheckoutAttribute.Key.get -> string!
+override TelegramBotForge.Payments.PreCheckoutAttribute.Priority.get -> int
+override TelegramBotForge.Payments.PreCheckoutAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+override TelegramBotForge.Views.ErrorView.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+override TelegramBotForge.Views.PaymentDeclinedView.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+override TelegramBotForge.Views.PaySupportView.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+override TelegramBotForge.Views.RateLimitView.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+override TelegramBotForge.Views.UnknownCommandView.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+static TelegramBotForge.Controllers.BotController.AcceptCheckout() -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Answer(string? text = null, bool alert = false) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.AnswerInline(System.Collections.Generic.IEnumerable<Telegram.Bot.Types.InlineQueryResults.InlineQueryResult!>! results, int cacheSeconds = 300, bool isPersonal = false, string? nextOffset = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.DeclineCheckout(string! reason) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Delete() -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Edit(string! text, Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup? keyboard = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Edit(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Invoice(string! productCode) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Refund(string! chargeId, long? userId = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Reply(string! text, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? keyboard = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Reply(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.ReplyMedia(TelegramBotForge.Media.MediaFile! media, string? caption = null, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? keyboard = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.DependencyInjection.AddTelegramBot(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfiguration! configuration, string! sectionName = "TelegramBotConfiguration") -> TelegramBotForge.TelegramBotBuilder!
+static TelegramBotForge.Media.BotMedia.From(Telegram.Bot.Types.Message? message) -> TelegramBotForge.Media.BotMedia?
+static TelegramBotForge.Media.MediaFile.From(TelegramBotForge.Media.BotMedia! received) -> TelegramBotForge.Media.MediaFile!
+static TelegramBotForge.Media.MediaFile.FromFileId(TelegramBotForge.Media.MediaType type, string! fileId) -> TelegramBotForge.Media.MediaFile!
+static TelegramBotForge.Media.MediaFile.FromPath(TelegramBotForge.Media.MediaType type, string! path) -> TelegramBotForge.Media.MediaFile!
+static TelegramBotForge.Media.MediaFile.FromUrl(TelegramBotForge.Media.MediaType type, string! url) -> TelegramBotForge.Media.MediaFile!
+static TelegramBotForge.Payments.StarsBuilderExtensions.AddStars(this TelegramBotForge.TelegramBotBuilder! builder, System.Action<TelegramBotForge.Payments.StarsCatalog!>? products = null) -> TelegramBotForge.TelegramBotBuilder!
+static TelegramBotForge.Payments.StarsBuilderExtensions.UseProcessedPayments<TStore>(this TelegramBotForge.TelegramBotBuilder! builder) -> TelegramBotForge.TelegramBotBuilder!
+static TelegramBotForge.Payments.StarsBuilderExtensions.UseStarsProducts<TProducts>(this TelegramBotForge.TelegramBotBuilder! builder) -> TelegramBotForge.TelegramBotBuilder!
+static TelegramBotForge.Results.AnswerPreCheckout.Accept.get -> TelegramBotForge.Results.AnswerPreCheckout!
+static TelegramBotForge.Results.BotResultExtensions.Then(this TelegramBotForge.Results.IBotResult! first, TelegramBotForge.Results.IBotResult! next) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Results.EditMedia.From(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.EditMedia!
+static TelegramBotForge.Results.EditText.From(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.EditText!
+static TelegramBotForge.Results.InlineResults.Article(string! id, string! title, string! text, string? description = null, Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup? keyboard = null, string? thumbnailUrl = null, Telegram.Bot.Types.Enums.ParseMode parseMode = Telegram.Bot.Types.Enums.ParseMode.Html) -> Telegram.Bot.Types.InlineQueryResults.InlineQueryResultArticle!
+static TelegramBotForge.Results.SendMedia.From(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.SendMedia!
+static TelegramBotForge.Results.SendText.From(TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.SendText!
+static TelegramBotForge.Views.Buttons.Callback(string! text, string? data = null) -> TelegramBotForge.Views.BotButton!
+static TelegramBotForge.Views.Buttons.Copy(string! text, string! textToCopy) -> TelegramBotForge.Views.BotButton!
+static TelegramBotForge.Views.Buttons.Url(string! text, string! url) -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.BotContext
+TelegramBotForge.BotContext.Album.get -> System.Collections.Generic.IReadOnlyList<TelegramBotForge.Media.BotMedia!>?
+TelegramBotForge.BotContext.AlbumMessages.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.Message!>?
+TelegramBotForge.BotContext.Bot.get -> Telegram.Bot.ITelegramBotClient!
+TelegramBotForge.BotContext.CallbackData.get -> string?
+TelegramBotForge.BotContext.CallbackQuery.get -> Telegram.Bot.Types.CallbackQuery?
+TelegramBotForge.BotContext.CancellationToken.get -> System.Threading.CancellationToken
+TelegramBotForge.BotContext.Chat.get -> Telegram.Bot.Types.Chat?
+TelegramBotForge.BotContext.ChatId.get -> long?
+TelegramBotForge.BotContext.Command.get -> string?
+TelegramBotForge.BotContext.CommandArgs.get -> string?
+TelegramBotForge.BotContext.Contact.get -> Telegram.Bot.Types.Contact?
+TelegramBotForge.BotContext.Culture.get -> System.Globalization.CultureInfo?
+TelegramBotForge.BotContext.EditedMessage.get -> Telegram.Bot.Types.Message?
+TelegramBotForge.BotContext.From.get -> Telegram.Bot.Types.User?
+TelegramBotForge.BotContext.InlineQuery.get -> Telegram.Bot.Types.InlineQuery?
+TelegramBotForge.BotContext.IsCommandForAnotherBot.get -> bool
+TelegramBotForge.BotContext.Items.get -> System.Collections.Generic.IDictionary<string!, object?>!
+TelegramBotForge.BotContext.Location.get -> Telegram.Bot.Types.Location?
+TelegramBotForge.BotContext.Media.get -> TelegramBotForge.Media.BotMedia?
+TelegramBotForge.BotContext.MembershipChange.get -> Telegram.Bot.Types.ChatMemberUpdated?
+TelegramBotForge.BotContext.Message.get -> Telegram.Bot.Types.Message?
+TelegramBotForge.BotContext.Services.get -> System.IServiceProvider!
+TelegramBotForge.BotContext.StarsOrder.get -> TelegramBotForge.Payments.StarsOrder?
+TelegramBotForge.BotContext.StarsPayment.get -> TelegramBotForge.Payments.StarsPayment?
+TelegramBotForge.BotContext.State.get -> TelegramBotForge.State.ChatState?
+TelegramBotForge.BotContext.Text.get -> string?
+TelegramBotForge.BotContext.Update.get -> Telegram.Bot.Types.Update!
+TelegramBotForge.BotContext.UserId.get -> long?
+TelegramBotForge.Broadcasting.BroadcastOptions
+TelegramBotForge.Broadcasting.BroadcastOptions.BroadcastOptions() -> void
+TelegramBotForge.Broadcasting.BroadcastOptions.MessagesPerSecond.get -> int
+TelegramBotForge.Broadcasting.BroadcastOptions.MessagesPerSecond.set -> void
+TelegramBotForge.Broadcasting.BroadcastOptions.OnSent.get -> System.Func<long, int, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask>?
+TelegramBotForge.Broadcasting.BroadcastOptions.OnSent.set -> void
+TelegramBotForge.Broadcasting.BroadcastOptions.OnUnreachable.get -> System.Func<long, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask>?
+TelegramBotForge.Broadcasting.BroadcastOptions.OnUnreachable.set -> void
+TelegramBotForge.Broadcasting.BroadcastOptions.Progress.get -> System.IProgress<TelegramBotForge.Broadcasting.BroadcastProgress!>?
+TelegramBotForge.Broadcasting.BroadcastOptions.Progress.set -> void
+TelegramBotForge.Broadcasting.BroadcastProgress
+TelegramBotForge.Broadcasting.BroadcastProgress.BroadcastProgress(int Total, int Sent, int Unreachable, int Failed, int Skipped) -> void
+TelegramBotForge.Broadcasting.BroadcastProgress.Done.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Failed.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Failed.init -> void
+TelegramBotForge.Broadcasting.BroadcastProgress.Sent.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Sent.init -> void
+TelegramBotForge.Broadcasting.BroadcastProgress.Skipped.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Skipped.init -> void
+TelegramBotForge.Broadcasting.BroadcastProgress.Total.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Total.init -> void
+TelegramBotForge.Broadcasting.BroadcastProgress.Unreachable.get -> int
+TelegramBotForge.Broadcasting.BroadcastProgress.Unreachable.init -> void
+TelegramBotForge.Broadcasting.BroadcastReport
+TelegramBotForge.Broadcasting.BroadcastReport.Cancelled.get -> bool
+TelegramBotForge.Broadcasting.BroadcastReport.Duration.get -> System.TimeSpan
+TelegramBotForge.Broadcasting.BroadcastReport.Failed.get -> System.Collections.Generic.IReadOnlyDictionary<long, string!>!
+TelegramBotForge.Broadcasting.BroadcastReport.Remaining.get -> System.Collections.Generic.IReadOnlyList<long>!
+TelegramBotForge.Broadcasting.BroadcastReport.Sent.get -> int
+TelegramBotForge.Broadcasting.BroadcastReport.Skipped.get -> int
+TelegramBotForge.Broadcasting.BroadcastReport.Total.get -> int
+TelegramBotForge.Broadcasting.BroadcastReport.Unreachable.get -> System.Collections.Generic.IReadOnlyList<long>!
+TelegramBotForge.Broadcasting.IBotBroadcaster
+TelegramBotForge.Broadcasting.IBotBroadcaster.SendAsync(System.Collections.Generic.IEnumerable<long>! chatIds, System.Func<long, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<TelegramBotForge.Views.BotMessage?>>! render, TelegramBotForge.Broadcasting.BroadcastOptions? options = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Broadcasting.BroadcastReport!>!
+TelegramBotForge.Broadcasting.IBotBroadcaster.SendAsync(System.Collections.Generic.IEnumerable<long>! chatIds, TelegramBotForge.Views.BotMessage! message, TelegramBotForge.Broadcasting.BroadcastOptions? options = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Broadcasting.BroadcastReport!>!
+TelegramBotForge.Configurations.CallbackAckMode
+TelegramBotForge.Configurations.CallbackAckMode.Immediate = 0 -> TelegramBotForge.Configurations.CallbackAckMode
+TelegramBotForge.Configurations.CallbackAckMode.Manual = 1 -> TelegramBotForge.Configurations.CallbackAckMode
+TelegramBotForge.Configurations.QueueKeyStrategy
+TelegramBotForge.Configurations.QueueKeyStrategy.Chat = 0 -> TelegramBotForge.Configurations.QueueKeyStrategy
+TelegramBotForge.Configurations.QueueKeyStrategy.ChatAndUser = 2 -> TelegramBotForge.Configurations.QueueKeyStrategy
+TelegramBotForge.Configurations.QueueKeyStrategy.User = 1 -> TelegramBotForge.Configurations.QueueKeyStrategy
+TelegramBotForge.Configurations.TelegramBotConfiguration
+TelegramBotForge.Configurations.TelegramBotConfiguration.AlbumWaitMilliseconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.AlbumWaitMilliseconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.AllowedUpdates.get -> Telegram.Bot.Types.Enums.UpdateType[]?
+TelegramBotForge.Configurations.TelegramBotConfiguration.AllowedUpdates.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.BotApiBaseUrl.get -> string?
+TelegramBotForge.Configurations.TelegramBotConfiguration.BotApiBaseUrl.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.DropOnOverflow.get -> bool
+TelegramBotForge.Configurations.TelegramBotConfiguration.DropOnOverflow.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.FallbackErrorMessage.get -> string!
+TelegramBotForge.Configurations.TelegramBotConfiguration.FallbackErrorMessage.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.FloodControl.get -> TelegramBotForge.Configurations.TelegramBotFloodControlOptions!
+TelegramBotForge.Configurations.TelegramBotConfiguration.FloodControl.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.IdleChatTtlSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.IdleChatTtlSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.Logging.get -> TelegramBotForge.Configurations.TelegramBotLoggingOptions!
+TelegramBotForge.Configurations.TelegramBotConfiguration.Logging.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.MaxGlobalConcurrency.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.MaxGlobalConcurrency.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.PerChatQueueCapacity.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.PerChatQueueCapacity.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorBaseDelaySeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorBaseDelaySeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorErrorThreshold.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorErrorThreshold.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorMaxDelaySeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.PollingNetworkErrorMaxDelaySeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.RateLimit.get -> TelegramBotForge.Configurations.TelegramBotRateLimitOptions!
+TelegramBotForge.Configurations.TelegramBotConfiguration.RateLimit.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.Stars.get -> TelegramBotForge.Configurations.TelegramBotStarsOptions!
+TelegramBotForge.Configurations.TelegramBotConfiguration.Stars.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramBotConfiguration() -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramConnectTimeoutSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramConnectTimeoutSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramHttpTimeoutSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramHttpTimeoutSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramPooledConnectionIdleTimeoutSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramPooledConnectionIdleTimeoutSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramPooledConnectionLifetimeSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotConfiguration.TelegramPooledConnectionLifetimeSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.Token.get -> string!
+TelegramBotForge.Configurations.TelegramBotConfiguration.Token.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.UnknownCommandMessage.get -> string!
+TelegramBotForge.Configurations.TelegramBotConfiguration.UnknownCommandMessage.set -> void
+TelegramBotForge.Configurations.TelegramBotConfiguration.Webhook.get -> TelegramBotForge.Configurations.TelegramBotWebhookOptions!
+TelegramBotForge.Configurations.TelegramBotConfiguration.Webhook.set -> void
+TelegramBotForge.Configurations.TelegramBotConfigurationValidator
+TelegramBotForge.Configurations.TelegramBotConfigurationValidator.Validate(string? name, TelegramBotForge.Configurations.TelegramBotConfiguration! options) -> Microsoft.Extensions.Options.ValidateOptionsResult!
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.Enabled.get -> bool
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.Enabled.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.GlobalPerSecond.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.GlobalPerSecond.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.GroupPerMinute.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.GroupPerMinute.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.MaxRetryAfterSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.MaxRetryAfterSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.PrivateChatBurst.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.PrivateChatBurst.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.PrivateChatPerSecond.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.PrivateChatPerSecond.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.RetryCount.get -> int
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.RetryCount.set -> void
+TelegramBotForge.Configurations.TelegramBotFloodControlOptions.TelegramBotFloodControlOptions() -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.Enabled.get -> bool
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.Enabled.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.IncludeMessageText.get -> bool
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.IncludeMessageText.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.LogUpdates.get -> bool
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.LogUpdates.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.MinimumLevel.get -> Microsoft.Extensions.Logging.LogLevel
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.MinimumLevel.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.PrettyConsole.get -> bool
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.PrettyConsole.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.SlowUpdateWarningMs.get -> int
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.SlowUpdateWarningMs.set -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.TelegramBotLoggingOptions() -> void
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.UseColors.get -> bool
+TelegramBotForge.Configurations.TelegramBotLoggingOptions.UseColors.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.Enabled.get -> bool
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.Enabled.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.ExemptUserIds.get -> long[]!
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.ExemptUserIds.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.MaxUpdates.get -> int
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.MaxUpdates.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.Message.get -> string!
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.Message.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.PerSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.PerSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotRateLimitOptions.TelegramBotRateLimitOptions() -> void
+TelegramBotForge.Configurations.TelegramBotStarsOptions
+TelegramBotForge.Configurations.TelegramBotStarsOptions.DeclineMessage.get -> string!
+TelegramBotForge.Configurations.TelegramBotStarsOptions.DeclineMessage.set -> void
+TelegramBotForge.Configurations.TelegramBotStarsOptions.PaySupportMessage.get -> string?
+TelegramBotForge.Configurations.TelegramBotStarsOptions.PaySupportMessage.set -> void
+TelegramBotForge.Configurations.TelegramBotStarsOptions.PreCheckoutTimeoutSeconds.get -> int
+TelegramBotForge.Configurations.TelegramBotStarsOptions.PreCheckoutTimeoutSeconds.set -> void
+TelegramBotForge.Configurations.TelegramBotStarsOptions.TelegramBotStarsOptions() -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.DeleteOnShutdown.get -> bool
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.DeleteOnShutdown.set -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.DropPendingUpdates.get -> bool
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.DropPendingUpdates.set -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.MaxConnections.get -> int?
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.MaxConnections.set -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.SecretToken.get -> string?
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.SecretToken.set -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.TelegramBotWebhookOptions() -> void
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.Url.get -> string?
+TelegramBotForge.Configurations.TelegramBotWebhookOptions.Url.set -> void
+TelegramBotForge.Controllers.AddedToChatAttribute
+TelegramBotForge.Controllers.AddedToChatAttribute.AddedToChatAttribute() -> void
+TelegramBotForge.Controllers.AlbumAttribute
+TelegramBotForge.Controllers.AlbumAttribute.AlbumAttribute() -> void
+TelegramBotForge.Controllers.BotActionContext
+TelegramBotForge.Controllers.BotActionContext.ActionName.get -> string!
+TelegramBotForge.Controllers.BotActionContext.Context.get -> TelegramBotForge.BotContext!
+TelegramBotForge.Controllers.BotActionContext.ControllerType.get -> System.Type!
+TelegramBotForge.Controllers.BotActionContext.Method.get -> System.Reflection.MethodInfo!
+TelegramBotForge.Controllers.BotActionNext
+TelegramBotForge.Controllers.BotBlockedAttribute
+TelegramBotForge.Controllers.BotBlockedAttribute.BotBlockedAttribute() -> void
+TelegramBotForge.Controllers.BotConstraintAttribute
+TelegramBotForge.Controllers.BotConstraintAttribute.BotConstraintAttribute() -> void
+TelegramBotForge.Controllers.BotController
+TelegramBotForge.Controllers.BotController.BotController() -> void
+TelegramBotForge.Controllers.BotController.Context.get -> TelegramBotForge.BotContext!
+TelegramBotForge.Controllers.BotController.EnterState(System.Enum! state, string! text, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? keyboard = null) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Controllers.BotController.EnterState(System.Enum! state, TelegramBotForge.Results.IBotResult! result) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Controllers.BotController.EnterState(System.Enum! state, TelegramBotForge.Views.BotMessage! message) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Controllers.BotController.ExitState() -> void
+TelegramBotForge.Controllers.BotController.ExitState(string! text, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? keyboard = null) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Controllers.BotController.ExitState(TelegramBotForge.Results.IBotResult! result) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Controllers.BotController.State.get -> TelegramBotForge.State.ChatState!
+TelegramBotForge.Controllers.BotFilterAttribute
+TelegramBotForge.Controllers.BotFilterAttribute.BotFilterAttribute() -> void
+TelegramBotForge.Controllers.BotFilterAttribute.Order.get -> int
+TelegramBotForge.Controllers.BotFilterAttribute.Order.set -> void
+TelegramBotForge.Controllers.BotUnblockedAttribute
+TelegramBotForge.Controllers.BotUnblockedAttribute.BotUnblockedAttribute() -> void
+TelegramBotForge.Controllers.ButtonTextAttribute
+TelegramBotForge.Controllers.ButtonTextAttribute.ButtonTextAttribute(params string![]! labels) -> void
+TelegramBotForge.Controllers.ButtonTextAttribute.Labels.get -> System.Collections.Generic.IReadOnlyList<string!>!
+TelegramBotForge.Controllers.CallbackAttribute
+TelegramBotForge.Controllers.CallbackAttribute.CallbackAttribute(string! template) -> void
+TelegramBotForge.Controllers.CallbackAttribute.Template.get -> string!
+TelegramBotForge.Controllers.ChatTypeAttribute
+TelegramBotForge.Controllers.ChatTypeAttribute.ChatTypeAttribute(params Telegram.Bot.Types.Enums.ChatType[]! types) -> void
+TelegramBotForge.Controllers.ChatTypeAttribute.Types.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.Enums.ChatType>!
+TelegramBotForge.Controllers.CommandAttribute
+TelegramBotForge.Controllers.CommandAttribute.CommandAttribute(string! name) -> void
+TelegramBotForge.Controllers.CommandAttribute.Description.get -> string?
+TelegramBotForge.Controllers.CommandAttribute.Description.set -> void
+TelegramBotForge.Controllers.CommandAttribute.Name.get -> string!
+TelegramBotForge.Controllers.ContactAttribute
+TelegramBotForge.Controllers.ContactAttribute.ContactAttribute() -> void
+TelegramBotForge.Controllers.ContactAttribute.OwnOnly.get -> bool
+TelegramBotForge.Controllers.ContactAttribute.OwnOnly.set -> void
+TelegramBotForge.Controllers.EditedAttribute
+TelegramBotForge.Controllers.EditedAttribute.EditedAttribute() -> void
+TelegramBotForge.Controllers.EditedTextAttribute
+TelegramBotForge.Controllers.EditedTextAttribute.EditedTextAttribute() -> void
+TelegramBotForge.Controllers.IBotActionFilter
+TelegramBotForge.Controllers.IBotActionFilter.OnActionAsync(TelegramBotForge.Controllers.BotActionContext! action, TelegramBotForge.Controllers.BotActionNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+TelegramBotForge.Controllers.InlineQueryAttribute
+TelegramBotForge.Controllers.InlineQueryAttribute.InlineQueryAttribute() -> void
+TelegramBotForge.Controllers.LocationAttribute
+TelegramBotForge.Controllers.LocationAttribute.LocationAttribute() -> void
+TelegramBotForge.Controllers.MediaAttribute
+TelegramBotForge.Controllers.MediaAttribute.MediaAttribute(params TelegramBotForge.Media.MediaType[]! types) -> void
+TelegramBotForge.Controllers.MediaAttribute.Types.get -> System.Collections.Generic.IReadOnlyList<TelegramBotForge.Media.MediaType>!
+TelegramBotForge.Controllers.MembershipRouteAttribute
+TelegramBotForge.Controllers.MembershipRouteAttribute.MembershipRouteAttribute() -> void
+TelegramBotForge.Controllers.RegexAttribute
+TelegramBotForge.Controllers.RegexAttribute.IgnoreCase.get -> bool
+TelegramBotForge.Controllers.RegexAttribute.IgnoreCase.set -> void
+TelegramBotForge.Controllers.RegexAttribute.Pattern.get -> string!
+TelegramBotForge.Controllers.RegexAttribute.RegexAttribute(string! pattern) -> void
+TelegramBotForge.Controllers.RemovedFromChatAttribute
+TelegramBotForge.Controllers.RemovedFromChatAttribute.RemovedFromChatAttribute() -> void
+TelegramBotForge.Controllers.RouteAttribute
+TelegramBotForge.Controllers.RouteAttribute.RouteAttribute() -> void
+TelegramBotForge.Controllers.StateAttribute
+TelegramBotForge.Controllers.StateAttribute.StateAttribute(params object![]! states) -> void
+TelegramBotForge.Controllers.StateAttribute.States.get -> System.Collections.Generic.IReadOnlyList<string!>!
+TelegramBotForge.Controllers.TextAttribute
+TelegramBotForge.Controllers.TextAttribute.TextAttribute() -> void
+TelegramBotForge.Controllers.UseFilterAttribute
+TelegramBotForge.Controllers.UseFilterAttribute.FilterType.get -> System.Type!
+TelegramBotForge.Controllers.UseFilterAttribute.Order.get -> int
+TelegramBotForge.Controllers.UseFilterAttribute.Order.set -> void
+TelegramBotForge.Controllers.UseFilterAttribute.UseFilterAttribute(System.Type! filterType) -> void
+TelegramBotForge.Controllers.UseFilterAttribute<TFilter>
+TelegramBotForge.Controllers.UseFilterAttribute<TFilter>.UseFilterAttribute() -> void
+TelegramBotForge.DependencyInjection
+TelegramBotForge.Hosting.DelegatingBotClient
+TelegramBotForge.Hosting.DelegatingBotClient.BotId.get -> long
+TelegramBotForge.Hosting.DelegatingBotClient.DelegatingBotClient(Telegram.Bot.ITelegramBotClient! inner) -> void
+TelegramBotForge.Hosting.DelegatingBotClient.ExceptionsParser.get -> Telegram.Bot.Exceptions.IExceptionParser!
+TelegramBotForge.Hosting.DelegatingBotClient.ExceptionsParser.set -> void
+TelegramBotForge.Hosting.DelegatingBotClient.Inner.get -> Telegram.Bot.ITelegramBotClient!
+TelegramBotForge.Hosting.DelegatingBotClient.LocalBotServer.get -> bool
+TelegramBotForge.Hosting.DelegatingBotClient.OnApiResponseReceived -> Telegram.Bot.AsyncEventHandler<Telegram.Bot.Args.ApiResponseEventArgs!>?
+TelegramBotForge.Hosting.DelegatingBotClient.OnMakingApiRequest -> Telegram.Bot.AsyncEventHandler<Telegram.Bot.Args.ApiRequestEventArgs!>?
+TelegramBotForge.Hosting.DelegatingBotClient.Timeout.get -> System.TimeSpan
+TelegramBotForge.Hosting.DelegatingBotClient.Timeout.set -> void
+TelegramBotForge.Hosting.IBotUpdateQueue
+TelegramBotForge.Hosting.IBotUpdateQueue.EnqueueAsync(Telegram.Bot.Types.Update! update, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.Hosting.IConversationLock
+TelegramBotForge.Hosting.IConversationLock.AcquireAsync(string! key, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<System.IAsyncDisposable!>
+TelegramBotForge.Localization.BotLocalizationOptions
+TelegramBotForge.Localization.BotLocalizationOptions.BotLocalizationOptions() -> void
+TelegramBotForge.Localization.BotLocalizationOptions.DefaultCulture.get -> string!
+TelegramBotForge.Localization.BotLocalizationOptions.DefaultCulture.set -> void
+TelegramBotForge.Localization.BotLocalizationOptions.SetCurrentCulture.get -> bool
+TelegramBotForge.Localization.BotLocalizationOptions.SetCurrentCulture.set -> void
+TelegramBotForge.Localization.BotLocalizationOptions.SupportedCultures.get -> string![]!
+TelegramBotForge.Localization.BotLocalizationOptions.SupportedCultures.set -> void
+TelegramBotForge.Localization.BotLocalizationOptions.TranslateCommand.get -> System.Func<string!, System.Globalization.CultureInfo!, string?>?
+TelegramBotForge.Localization.BotLocalizationOptions.TranslateCommand.set -> void
+TelegramBotForge.Localization.IBotCultureResolver
+TelegramBotForge.Localization.IBotCultureResolver.GetLanguageAsync(TelegramBotForge.BotContext! context, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<string?>
+TelegramBotForge.Logging.TelegramBotConsoleFormatter
+TelegramBotForge.Logging.TelegramBotConsoleFormatter.Dispose() -> void
+TelegramBotForge.Logging.TelegramBotConsoleFormatter.TelegramBotConsoleFormatter(Microsoft.Extensions.Options.IOptionsMonitor<TelegramBotForge.Logging.TelegramBotConsoleFormatterOptions!>! options) -> void
+TelegramBotForge.Logging.TelegramBotConsoleFormatterOptions
+TelegramBotForge.Logging.TelegramBotConsoleFormatterOptions.TelegramBotConsoleFormatterOptions() -> void
+TelegramBotForge.Logging.TelegramBotConsoleFormatterOptions.UseColors.get -> bool
+TelegramBotForge.Logging.TelegramBotConsoleFormatterOptions.UseColors.set -> void
+TelegramBotForge.Media.BotMedia
+TelegramBotForge.Media.BotMedia.BotMedia(TelegramBotForge.Media.MediaType Type, string! FileId, string! FileUniqueId, long? FileSize, int? Width, int? Height, int? Duration, string? MimeType, string? FileName, string? Caption, string? MediaGroupId) -> void
+TelegramBotForge.Media.BotMedia.Caption.get -> string?
+TelegramBotForge.Media.BotMedia.Caption.init -> void
+TelegramBotForge.Media.BotMedia.Duration.get -> int?
+TelegramBotForge.Media.BotMedia.Duration.init -> void
+TelegramBotForge.Media.BotMedia.FileId.get -> string!
+TelegramBotForge.Media.BotMedia.FileId.init -> void
+TelegramBotForge.Media.BotMedia.FileName.get -> string?
+TelegramBotForge.Media.BotMedia.FileName.init -> void
+TelegramBotForge.Media.BotMedia.FileSize.get -> long?
+TelegramBotForge.Media.BotMedia.FileSize.init -> void
+TelegramBotForge.Media.BotMedia.FileUniqueId.get -> string!
+TelegramBotForge.Media.BotMedia.FileUniqueId.init -> void
+TelegramBotForge.Media.BotMedia.Height.get -> int?
+TelegramBotForge.Media.BotMedia.Height.init -> void
+TelegramBotForge.Media.BotMedia.MediaGroupId.get -> string?
+TelegramBotForge.Media.BotMedia.MediaGroupId.init -> void
+TelegramBotForge.Media.BotMedia.MimeType.get -> string?
+TelegramBotForge.Media.BotMedia.MimeType.init -> void
+TelegramBotForge.Media.BotMedia.Type.get -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.BotMedia.Type.init -> void
+TelegramBotForge.Media.BotMedia.Width.get -> int?
+TelegramBotForge.Media.BotMedia.Width.init -> void
+TelegramBotForge.Media.IBotFiles
+TelegramBotForge.Media.IBotFiles.DownloadAsync(string! fileId, System.IO.Stream! destination, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Media.IBotFiles.DownloadToFileAsync(string! fileId, string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Media.MediaFile
+TelegramBotForge.Media.MediaFile.MediaFile(TelegramBotForge.Media.MediaType Type, TelegramBotForge.Media.MediaSource Source, string! Value) -> void
+TelegramBotForge.Media.MediaFile.Source.get -> TelegramBotForge.Media.MediaSource
+TelegramBotForge.Media.MediaFile.Source.init -> void
+TelegramBotForge.Media.MediaFile.Type.get -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaFile.Type.init -> void
+TelegramBotForge.Media.MediaFile.Value.get -> string!
+TelegramBotForge.Media.MediaFile.Value.init -> void
+TelegramBotForge.Media.MediaSource
+TelegramBotForge.Media.MediaSource.FileId = 0 -> TelegramBotForge.Media.MediaSource
+TelegramBotForge.Media.MediaSource.Path = 2 -> TelegramBotForge.Media.MediaSource
+TelegramBotForge.Media.MediaSource.Url = 1 -> TelegramBotForge.Media.MediaSource
+TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Animation = 2 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Audio = 4 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Document = 3 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Photo = 0 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Sticker = 7 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Video = 1 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.VideoNote = 6 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Media.MediaType.Voice = 5 -> TelegramBotForge.Media.MediaType
+TelegramBotForge.Middleware.BotMessageFilterMiddleware
+TelegramBotForge.Middleware.BotMessageFilterMiddleware.BotMessageFilterMiddleware() -> void
+TelegramBotForge.Middleware.BotNext
+TelegramBotForge.Middleware.ErrorMiddleware
+TelegramBotForge.Middleware.ErrorMiddleware.ErrorMiddleware(Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, Microsoft.Extensions.Options.IOptions<TelegramBotForge.Configurations.TelegramBotConfiguration!>? options = null) -> void
+TelegramBotForge.Middleware.ErrorMiddleware.Logger.get -> Microsoft.Extensions.Logging.ILogger!
+TelegramBotForge.Middleware.ErrorMiddleware.Options.get -> TelegramBotForge.Configurations.TelegramBotConfiguration!
+TelegramBotForge.Middleware.IBotMiddleware
+TelegramBotForge.Middleware.IBotMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+TelegramBotForge.Middleware.RateLimitMiddleware
+TelegramBotForge.Middleware.RateLimitMiddleware.Logger.get -> Microsoft.Extensions.Logging.ILogger!
+TelegramBotForge.Middleware.RateLimitMiddleware.Options.get -> TelegramBotForge.Configurations.TelegramBotRateLimitOptions!
+TelegramBotForge.Middleware.RateLimitMiddleware.RateLimitMiddleware(Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, Microsoft.Extensions.Options.IOptions<TelegramBotForge.Configurations.TelegramBotConfiguration!>? options = null, System.TimeProvider? timeProvider = null) -> void
+TelegramBotForge.Middleware.StateMiddleware
+TelegramBotForge.Middleware.StateMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+TelegramBotForge.Middleware.StateMiddleware.StateMiddleware(TelegramBotForge.State.IStateStorage! storage, TelegramBotForge.TelegramBotBuilder! bot, System.TimeProvider? timeProvider = null) -> void
+TelegramBotForge.Middleware.UpdateLoggingMiddleware
+TelegramBotForge.Middleware.UpdateLoggingMiddleware.Logger.get -> Microsoft.Extensions.Logging.ILogger!
+TelegramBotForge.Middleware.UpdateLoggingMiddleware.Options.get -> TelegramBotForge.Configurations.TelegramBotLoggingOptions!
+TelegramBotForge.Middleware.UpdateLoggingMiddleware.UpdateLoggingMiddleware(Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, Microsoft.Extensions.Options.IOptions<TelegramBotForge.Configurations.TelegramBotConfiguration!>? options = null) -> void
+TelegramBotForge.Payments.InMemoryProcessedPayments
+TelegramBotForge.Payments.InMemoryProcessedPayments.InMemoryProcessedPayments(System.TimeProvider? timeProvider = null) -> void
+TelegramBotForge.Payments.InMemoryProcessedPayments.RemoveAsync(string! chargeId, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.Payments.InMemoryProcessedPayments.TryAddAsync(string! chargeId, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<bool>
+TelegramBotForge.Payments.IProcessedPayments
+TelegramBotForge.Payments.IProcessedPayments.RemoveAsync(string! chargeId, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.Payments.IProcessedPayments.TryAddAsync(string! chargeId, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<bool>
+TelegramBotForge.Payments.IStarsPayments
+TelegramBotForge.Payments.IStarsPayments.RefundAsync(long userId, string! chargeId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Payments.IStarsProducts
+TelegramBotForge.Payments.IStarsProducts.FindAsync(string! code, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<TelegramBotForge.Payments.StarsProduct?>
+TelegramBotForge.Payments.PaidAttribute
+TelegramBotForge.Payments.PaidAttribute.PaidAttribute(string? productCode = null) -> void
+TelegramBotForge.Payments.PaidAttribute.ProductCode.get -> string?
+TelegramBotForge.Payments.PreCheckoutAttribute
+TelegramBotForge.Payments.PreCheckoutAttribute.PreCheckoutAttribute(string? productCode = null) -> void
+TelegramBotForge.Payments.PreCheckoutAttribute.ProductCode.get -> string?
+TelegramBotForge.Payments.StarsBuilderExtensions
+TelegramBotForge.Payments.StarsCatalog
+TelegramBotForge.Payments.StarsCatalog.FindAsync(string! code, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<TelegramBotForge.Payments.StarsProduct?>
+TelegramBotForge.Payments.StarsCatalog.Product(string! code, string! title, string! description, int price) -> TelegramBotForge.Payments.StarsCatalog!
+TelegramBotForge.Payments.StarsCatalog.Product(TelegramBotForge.Payments.StarsProduct! product) -> TelegramBotForge.Payments.StarsCatalog!
+TelegramBotForge.Payments.StarsCatalog.Products.get -> System.Collections.Generic.IReadOnlyCollection<TelegramBotForge.Payments.StarsProduct!>!
+TelegramBotForge.Payments.StarsCatalog.StarsCatalog() -> void
+TelegramBotForge.Payments.StarsMiddleware
+TelegramBotForge.Payments.StarsMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+TelegramBotForge.Payments.StarsMiddleware.StarsMiddleware(TelegramBotForge.Payments.IStarsProducts! products, TelegramBotForge.Payments.IProcessedPayments! processed, Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory) -> void
+TelegramBotForge.Payments.StarsOrder
+TelegramBotForge.Payments.StarsOrder.OrderId.get -> string!
+TelegramBotForge.Payments.StarsOrder.OrderId.init -> void
+TelegramBotForge.Payments.StarsOrder.Product.get -> TelegramBotForge.Payments.StarsProduct!
+TelegramBotForge.Payments.StarsOrder.Product.init -> void
+TelegramBotForge.Payments.StarsOrder.StarsOrder(TelegramBotForge.Payments.StarsProduct! Product, long UserId, string! OrderId) -> void
+TelegramBotForge.Payments.StarsOrder.UserId.get -> long
+TelegramBotForge.Payments.StarsOrder.UserId.init -> void
+TelegramBotForge.Payments.StarsPayment
+TelegramBotForge.Payments.StarsPayment.Amount.get -> long
+TelegramBotForge.Payments.StarsPayment.Amount.init -> void
+TelegramBotForge.Payments.StarsPayment.ChargeId.get -> string!
+TelegramBotForge.Payments.StarsPayment.ChargeId.init -> void
+TelegramBotForge.Payments.StarsPayment.OrderId.get -> string!
+TelegramBotForge.Payments.StarsPayment.OrderId.init -> void
+TelegramBotForge.Payments.StarsPayment.Product.get -> TelegramBotForge.Payments.StarsProduct?
+TelegramBotForge.Payments.StarsPayment.Product.init -> void
+TelegramBotForge.Payments.StarsPayment.ProductCode.get -> string!
+TelegramBotForge.Payments.StarsPayment.ProductCode.init -> void
+TelegramBotForge.Payments.StarsPayment.StarsPayment(string! ProductCode, TelegramBotForge.Payments.StarsProduct? Product, long UserId, long Amount, string! ChargeId, string! OrderId) -> void
+TelegramBotForge.Payments.StarsPayment.UserId.get -> long
+TelegramBotForge.Payments.StarsPayment.UserId.init -> void
+TelegramBotForge.Payments.StarsProduct
+TelegramBotForge.Payments.StarsProduct.Code.get -> string!
+TelegramBotForge.Payments.StarsProduct.Code.init -> void
+TelegramBotForge.Payments.StarsProduct.Description.get -> string!
+TelegramBotForge.Payments.StarsProduct.Description.init -> void
+TelegramBotForge.Payments.StarsProduct.Price.get -> int
+TelegramBotForge.Payments.StarsProduct.Price.init -> void
+TelegramBotForge.Payments.StarsProduct.StarsProduct(string! Code, string! Title, string! Description, int Price) -> void
+TelegramBotForge.Payments.StarsProduct.Title.get -> string!
+TelegramBotForge.Payments.StarsProduct.Title.init -> void
+TelegramBotForge.Payments.StarsProduct.Validate() -> void
+TelegramBotForge.Results.AnswerCallback
+TelegramBotForge.Results.AnswerCallback.AnswerCallback(string? Text = null, bool ShowAlert = false) -> void
+TelegramBotForge.Results.AnswerCallback.ShowAlert.get -> bool
+TelegramBotForge.Results.AnswerCallback.ShowAlert.init -> void
+TelegramBotForge.Results.AnswerCallback.Text.get -> string?
+TelegramBotForge.Results.AnswerCallback.Text.init -> void
+TelegramBotForge.Results.AnswerInline
+TelegramBotForge.Results.AnswerInline.AnswerInline(System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.InlineQueryResults.InlineQueryResult!>! Results, int CacheSeconds = 300, bool IsPersonal = false, string? NextOffset = null, Telegram.Bot.Types.InlineQueryResults.InlineQueryResultsButton? Button = null) -> void
+TelegramBotForge.Results.AnswerInline.Button.get -> Telegram.Bot.Types.InlineQueryResults.InlineQueryResultsButton?
+TelegramBotForge.Results.AnswerInline.Button.init -> void
+TelegramBotForge.Results.AnswerInline.CacheSeconds.get -> int
+TelegramBotForge.Results.AnswerInline.CacheSeconds.init -> void
+TelegramBotForge.Results.AnswerInline.IsPersonal.get -> bool
+TelegramBotForge.Results.AnswerInline.IsPersonal.init -> void
+TelegramBotForge.Results.AnswerInline.NextOffset.get -> string?
+TelegramBotForge.Results.AnswerInline.NextOffset.init -> void
+TelegramBotForge.Results.AnswerInline.Results.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.InlineQueryResults.InlineQueryResult!>!
+TelegramBotForge.Results.AnswerInline.Results.init -> void
+TelegramBotForge.Results.AnswerPreCheckout
+TelegramBotForge.Results.AnswerPreCheckout.AnswerPreCheckout(bool Ok, string? ErrorMessage = null) -> void
+TelegramBotForge.Results.AnswerPreCheckout.ErrorMessage.get -> string?
+TelegramBotForge.Results.AnswerPreCheckout.ErrorMessage.init -> void
+TelegramBotForge.Results.AnswerPreCheckout.Ok.get -> bool
+TelegramBotForge.Results.AnswerPreCheckout.Ok.init -> void
+TelegramBotForge.Results.BotResultExtensions
+TelegramBotForge.Results.DeleteMessage
+TelegramBotForge.Results.DeleteMessage.DeleteMessage(int? MessageId = null) -> void
+TelegramBotForge.Results.DeleteMessage.MessageId.get -> int?
+TelegramBotForge.Results.DeleteMessage.MessageId.init -> void
+TelegramBotForge.Results.EditMedia
+TelegramBotForge.Results.EditMedia.Caption.get -> string?
+TelegramBotForge.Results.EditMedia.Caption.init -> void
+TelegramBotForge.Results.EditMedia.EditMedia(TelegramBotForge.Media.MediaFile! Media, string? Caption = null, Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup? Keyboard = null, Telegram.Bot.Types.Enums.ParseMode ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html, int? MessageId = null) -> void
+TelegramBotForge.Results.EditMedia.Keyboard.get -> Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup?
+TelegramBotForge.Results.EditMedia.Keyboard.init -> void
+TelegramBotForge.Results.EditMedia.Media.get -> TelegramBotForge.Media.MediaFile!
+TelegramBotForge.Results.EditMedia.Media.init -> void
+TelegramBotForge.Results.EditMedia.MessageId.get -> int?
+TelegramBotForge.Results.EditMedia.MessageId.init -> void
+TelegramBotForge.Results.EditMedia.ParseMode.get -> Telegram.Bot.Types.Enums.ParseMode
+TelegramBotForge.Results.EditMedia.ParseMode.init -> void
+TelegramBotForge.Results.EditText
+TelegramBotForge.Results.EditText.DisableLinkPreview.get -> bool
+TelegramBotForge.Results.EditText.DisableLinkPreview.init -> void
+TelegramBotForge.Results.EditText.EditText(string! Text, Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup? Keyboard = null, Telegram.Bot.Types.Enums.ParseMode ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html, bool DisableLinkPreview = true, int? MessageId = null, bool Rich = false) -> void
+TelegramBotForge.Results.EditText.Keyboard.get -> Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup?
+TelegramBotForge.Results.EditText.Keyboard.init -> void
+TelegramBotForge.Results.EditText.MessageId.get -> int?
+TelegramBotForge.Results.EditText.MessageId.init -> void
+TelegramBotForge.Results.EditText.ParseMode.get -> Telegram.Bot.Types.Enums.ParseMode
+TelegramBotForge.Results.EditText.ParseMode.init -> void
+TelegramBotForge.Results.EditText.Rich.get -> bool
+TelegramBotForge.Results.EditText.Rich.init -> void
+TelegramBotForge.Results.EditText.Text.get -> string!
+TelegramBotForge.Results.EditText.Text.init -> void
+TelegramBotForge.Results.IBotResult
+TelegramBotForge.Results.IBotResultExecutor
+TelegramBotForge.Results.IBotResultExecutor.ExecuteAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Results.IBotResult! result, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task!
+TelegramBotForge.Results.InlineResults
+TelegramBotForge.Results.MultiResult
+TelegramBotForge.Results.MultiResult.MultiResult(params TelegramBotForge.Results.IBotResult![]! results) -> void
+TelegramBotForge.Results.MultiResult.Results.get -> System.Collections.Generic.IReadOnlyList<TelegramBotForge.Results.IBotResult!>!
+TelegramBotForge.Results.RefundStars
+TelegramBotForge.Results.RefundStars.ChargeId.get -> string!
+TelegramBotForge.Results.RefundStars.ChargeId.init -> void
+TelegramBotForge.Results.RefundStars.RefundStars(string! ChargeId, long? UserId = null) -> void
+TelegramBotForge.Results.RefundStars.UserId.get -> long?
+TelegramBotForge.Results.RefundStars.UserId.init -> void
+TelegramBotForge.Results.SendMedia
+TelegramBotForge.Results.SendMedia.Caption.get -> string?
+TelegramBotForge.Results.SendMedia.Caption.init -> void
+TelegramBotForge.Results.SendMedia.Keyboard.get -> Telegram.Bot.Types.ReplyMarkups.ReplyMarkup?
+TelegramBotForge.Results.SendMedia.Keyboard.init -> void
+TelegramBotForge.Results.SendMedia.Media.get -> TelegramBotForge.Media.MediaFile!
+TelegramBotForge.Results.SendMedia.Media.init -> void
+TelegramBotForge.Results.SendMedia.ParseMode.get -> Telegram.Bot.Types.Enums.ParseMode
+TelegramBotForge.Results.SendMedia.ParseMode.init -> void
+TelegramBotForge.Results.SendMedia.SendMedia(TelegramBotForge.Media.MediaFile! Media, string? Caption = null, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? Keyboard = null, Telegram.Bot.Types.Enums.ParseMode ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html) -> void
+TelegramBotForge.Results.SendText
+TelegramBotForge.Results.SendText.DisableLinkPreview.get -> bool
+TelegramBotForge.Results.SendText.DisableLinkPreview.init -> void
+TelegramBotForge.Results.SendText.Keyboard.get -> Telegram.Bot.Types.ReplyMarkups.ReplyMarkup?
+TelegramBotForge.Results.SendText.Keyboard.init -> void
+TelegramBotForge.Results.SendText.ParseMode.get -> Telegram.Bot.Types.Enums.ParseMode
+TelegramBotForge.Results.SendText.ParseMode.init -> void
+TelegramBotForge.Results.SendText.Rich.get -> bool
+TelegramBotForge.Results.SendText.Rich.init -> void
+TelegramBotForge.Results.SendText.SendText(string! Text, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? Keyboard = null, Telegram.Bot.Types.Enums.ParseMode ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html, bool DisableLinkPreview = true, bool Rich = false) -> void
+TelegramBotForge.Results.SendText.Text.get -> string!
+TelegramBotForge.Results.SendText.Text.init -> void
+TelegramBotForge.Results.StarsInvoice
+TelegramBotForge.Results.StarsInvoice.ProductCode.get -> string!
+TelegramBotForge.Results.StarsInvoice.ProductCode.init -> void
+TelegramBotForge.Results.StarsInvoice.StarsInvoice(string! ProductCode) -> void
+TelegramBotForge.State.ChatState
+TelegramBotForge.State.ChatState.ChatState() -> void
+TelegramBotForge.State.ChatState.ChatState(string? current, System.Collections.Generic.IReadOnlyDictionary<string!, string!>! data, System.DateTimeOffset updatedAt) -> void
+TelegramBotForge.State.ChatState.Clear() -> void
+TelegramBotForge.State.ChatState.Current.get -> string?
+TelegramBotForge.State.ChatState.Current.set -> void
+TelegramBotForge.State.ChatState.Data.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+TelegramBotForge.State.ChatState.Get<T>(string! key) -> T?
+TelegramBotForge.State.ChatState.IsEmpty.get -> bool
+TelegramBotForge.State.ChatState.Remove(string! key) -> bool
+TelegramBotForge.State.ChatState.Set<T>(string! key, T value) -> void
+TelegramBotForge.State.ChatState.UpdatedAt.get -> System.DateTimeOffset
+TelegramBotForge.State.InMemoryStateStorage
+TelegramBotForge.State.InMemoryStateStorage.GetAsync(TelegramBotForge.State.StateKey key, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<TelegramBotForge.State.ChatState?>
+TelegramBotForge.State.InMemoryStateStorage.InMemoryStateStorage(System.TimeProvider? timeProvider = null) -> void
+TelegramBotForge.State.InMemoryStateStorage.RemoveAsync(TelegramBotForge.State.StateKey key, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.State.InMemoryStateStorage.SaveAsync(TelegramBotForge.State.StateKey key, TelegramBotForge.State.ChatState! state, System.TimeSpan timeToLive, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.State.IStateStorage
+TelegramBotForge.State.IStateStorage.GetAsync(TelegramBotForge.State.StateKey key, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask<TelegramBotForge.State.ChatState?>
+TelegramBotForge.State.IStateStorage.RemoveAsync(TelegramBotForge.State.StateKey key, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.State.IStateStorage.SaveAsync(TelegramBotForge.State.StateKey key, TelegramBotForge.State.ChatState! state, System.TimeSpan timeToLive, System.Threading.CancellationToken ct) -> System.Threading.Tasks.ValueTask
+TelegramBotForge.State.StateKey
+TelegramBotForge.State.StateKey.ChatId.get -> long
+TelegramBotForge.State.StateKey.ChatId.init -> void
+TelegramBotForge.State.StateKey.StateKey() -> void
+TelegramBotForge.State.StateKey.StateKey(long ChatId, long UserId) -> void
+TelegramBotForge.State.StateKey.UserId.get -> long
+TelegramBotForge.State.StateKey.UserId.init -> void
+TelegramBotForge.TelegramBotBuilder
+TelegramBotForge.TelegramBotBuilder.AckCallbacks(TelegramBotForge.Configurations.CallbackAckMode mode) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.AddControllersFromAssembly(System.Reflection.Assembly! assembly) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.AddFilter<TFilter>(Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.ConfigureViews(System.Action<TelegramBotForge.Views.ViewDefaults!>! configure) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.KeepStateFor(System.TimeSpan timeToLive) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.ParallelPerQueue(int updatesAtOnce) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.QueueBy(TelegramBotForge.Configurations.QueueKeyStrategy strategy) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.RegisterCommands() -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.RemoveMiddleware<TMiddleware>() -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.ReplaceMiddleware<TOld, TNew>(Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+TelegramBotForge.TelegramBotBuilder.UseConversationLock<TLock>() -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.UseCultureResolver<TResolver>(Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.UseLocalization(System.Action<TelegramBotForge.Localization.BotLocalizationOptions!>? configure = null) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.UseMiddleware<TMiddleware>(Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.TelegramBotBuilder.UseStateStorage<TStorage>() -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.Telemetry.BotTelemetry
+TelegramBotForge.Views.BotButton
+TelegramBotForge.Views.BotButton.Disabled() -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.Views.BotButton.Icon(string! customEmojiId, string! fallback) -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.Views.BotButton.Kind.get -> TelegramBotForge.Views.ButtonKind
+TelegramBotForge.Views.BotButton.Style(TelegramBotForge.Views.ButtonStyle style) -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.Views.BotButton.Text.get -> string!
+TelegramBotForge.Views.BotButton.Value.get -> string!
+TelegramBotForge.Views.BotMessage
+TelegramBotForge.Views.BotMessage.BotMessage(string! Text, Telegram.Bot.Types.ReplyMarkups.ReplyMarkup? Keyboard = null, Telegram.Bot.Types.Enums.ParseMode ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html, bool DisableLinkPreview = true, TelegramBotForge.Media.MediaFile? Media = null, bool Rich = false) -> void
+TelegramBotForge.Views.BotMessage.DisableLinkPreview.get -> bool
+TelegramBotForge.Views.BotMessage.DisableLinkPreview.init -> void
+TelegramBotForge.Views.BotMessage.Keyboard.get -> Telegram.Bot.Types.ReplyMarkups.ReplyMarkup?
+TelegramBotForge.Views.BotMessage.Keyboard.init -> void
+TelegramBotForge.Views.BotMessage.Media.get -> TelegramBotForge.Media.MediaFile?
+TelegramBotForge.Views.BotMessage.Media.init -> void
+TelegramBotForge.Views.BotMessage.ParseMode.get -> Telegram.Bot.Types.Enums.ParseMode
+TelegramBotForge.Views.BotMessage.ParseMode.init -> void
+TelegramBotForge.Views.BotMessage.Rich.get -> bool
+TelegramBotForge.Views.BotMessage.Rich.init -> void
+TelegramBotForge.Views.BotMessage.Text.get -> string!
+TelegramBotForge.Views.BotMessage.Text.init -> void
+TelegramBotForge.Views.ButtonKind
+TelegramBotForge.Views.ButtonKind.Callback = 0 -> TelegramBotForge.Views.ButtonKind
+TelegramBotForge.Views.ButtonKind.Copy = 2 -> TelegramBotForge.Views.ButtonKind
+TelegramBotForge.Views.ButtonKind.Url = 1 -> TelegramBotForge.Views.ButtonKind
+TelegramBotForge.Views.Buttons
+TelegramBotForge.Views.ButtonStyle
+TelegramBotForge.Views.ButtonStyle.Danger = 3 -> TelegramBotForge.Views.ButtonStyle
+TelegramBotForge.Views.ButtonStyle.Default = 0 -> TelegramBotForge.Views.ButtonStyle
+TelegramBotForge.Views.ButtonStyle.Primary = 1 -> TelegramBotForge.Views.ButtonStyle
+TelegramBotForge.Views.ButtonStyle.Success = 2 -> TelegramBotForge.Views.ButtonStyle
+TelegramBotForge.Views.ErrorView
+TelegramBotForge.Views.ErrorView.ErrorView() -> void
+TelegramBotForge.Views.HtmlText
+TelegramBotForge.Views.HtmlText.AppendFormatted(string? value) -> void
+TelegramBotForge.Views.HtmlText.AppendFormatted(TelegramBotForge.Views.RawHtml value) -> void
+TelegramBotForge.Views.HtmlText.AppendFormatted<T>(T value) -> void
+TelegramBotForge.Views.HtmlText.AppendFormatted<T>(T value, int alignment) -> void
+TelegramBotForge.Views.HtmlText.AppendFormatted<T>(T value, int alignment, string? format) -> void
+TelegramBotForge.Views.HtmlText.AppendFormatted<T>(T value, string? format) -> void
+TelegramBotForge.Views.HtmlText.AppendLiteral(string! value) -> void
+TelegramBotForge.Views.HtmlText.HtmlText() -> void
+TelegramBotForge.Views.HtmlText.HtmlText(int literalLength, int formattedCount) -> void
+TelegramBotForge.Views.IBotView
+TelegramBotForge.Views.IView
+TelegramBotForge.Views.IView.Render() -> TelegramBotForge.Views.BotMessage!
+TelegramBotForge.Views.IView<TModel>
+TelegramBotForge.Views.IView<TModel>.Render(TModel model) -> TelegramBotForge.Views.BotMessage!
+TelegramBotForge.Views.MessageBuilder
+TelegramBotForge.Views.MessageBuilder.Back(string! data, string? text = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Buttons<T>(System.Collections.Generic.IEnumerable<T>! items, System.Func<T, TelegramBotForge.Views.BotButton!>! button, int perRow = 1) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Confirm(string! yes, string! no, string? yesText = null, string? noText = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.EmptyLine() -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Line(TelegramBotForge.Views.HtmlText line) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Line(TelegramBotForge.Views.RawHtml html) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Media(TelegramBotForge.Media.MediaFile! media) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Navigation(string? back = null, string? next = null, string? backText = null, string? nextText = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Page<T>(System.Collections.Generic.IReadOnlyList<T>! items, int page, int pageSize, System.Func<T, TelegramBotForge.Views.BotButton!>! item, System.Func<int, string!>! route, int perRow = 1, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Pagination(int page, int totalPages, System.Func<int, string!>! route, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.RemoveKeyboard() -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.ReplyButtons(System.Collections.Generic.IEnumerable<string!>! texts, int perRow = 1) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.RequestContact(string! text) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.RequestLocation(string! text) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Row(params TelegramBotForge.Views.BotButton![]! buttons) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.ShowLinkPreview() -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.MessageBuilder.Text(string? text) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Views.PageInfo
+TelegramBotForge.Views.PageInfo.CounterButton.get -> TelegramBotForge.Views.BotButton?
+TelegramBotForge.Views.PageInfo.FirstButton.get -> TelegramBotForge.Views.BotButton?
+TelegramBotForge.Views.PageInfo.IsFirst.get -> bool
+TelegramBotForge.Views.PageInfo.IsLast.get -> bool
+TelegramBotForge.Views.PageInfo.LastButton.get -> TelegramBotForge.Views.BotButton?
+TelegramBotForge.Views.PageInfo.NextButton.get -> TelegramBotForge.Views.BotButton?
+TelegramBotForge.Views.PageInfo.NextPage.get -> int
+TelegramBotForge.Views.PageInfo.Page.get -> int
+TelegramBotForge.Views.PageInfo.PageButton(int page) -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.Views.PageInfo.PreviousButton.get -> TelegramBotForge.Views.BotButton?
+TelegramBotForge.Views.PageInfo.PreviousPage.get -> int
+TelegramBotForge.Views.PageInfo.Route(int page) -> string!
+TelegramBotForge.Views.PageInfo.TotalPages.get -> int
+TelegramBotForge.Views.PaginationEdge
+TelegramBotForge.Views.PaginationEdge.Hide = 0 -> TelegramBotForge.Views.PaginationEdge
+TelegramBotForge.Views.PaginationEdge.Placeholder = 1 -> TelegramBotForge.Views.PaginationEdge
+TelegramBotForge.Views.PaginationEdge.Wrap = 2 -> TelegramBotForge.Views.PaginationEdge
+TelegramBotForge.Views.PaginationOptions
+TelegramBotForge.Views.PaginationOptions.AtEdges(TelegramBotForge.Views.PaginationEdge edge) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Counter(System.Func<TelegramBotForge.Views.PageInfo!, string!>! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Counter(System.Func<TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.BotButton?>! button) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.CurrentPage(System.Func<TelegramBotForge.Views.PageInfo!, string!>! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.First(string! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.First(System.Func<TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.BotButton?>! button) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Last(string! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Last(System.Func<TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.BotButton?>! button) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Layout(System.Func<TelegramBotForge.Views.PageInfo!, System.Collections.Generic.IEnumerable<TelegramBotForge.Views.BotButton?>!>! row) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.LayoutRows(System.Func<TelegramBotForge.Views.PageInfo!, System.Collections.Generic.IEnumerable<System.Collections.Generic.IEnumerable<TelegramBotForge.Views.BotButton?>!>!>! rows) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Next(string! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Next(System.Func<TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.BotButton?>! button) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.PaginationOptions() -> void
+TelegramBotForge.Views.PaginationOptions.Placeholder(string! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Previous(string! text) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Previous(System.Func<TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.BotButton?>! button) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.ShowSinglePage(bool show = true) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationOptions.Style(TelegramBotForge.Views.PaginationStyle style) -> TelegramBotForge.Views.PaginationOptions!
+TelegramBotForge.Views.PaginationStyle
+TelegramBotForge.Views.PaginationStyle.Compact = 0 -> TelegramBotForge.Views.PaginationStyle
+TelegramBotForge.Views.PaginationStyle.FirstLast = 2 -> TelegramBotForge.Views.PaginationStyle
+TelegramBotForge.Views.PaginationStyle.Numbered = 1 -> TelegramBotForge.Views.PaginationStyle
+TelegramBotForge.Views.PaymentDeclinedView
+TelegramBotForge.Views.PaymentDeclinedView.PaymentDeclinedView() -> void
+TelegramBotForge.Views.PaySupportView
+TelegramBotForge.Views.PaySupportView.PaySupportView() -> void
+TelegramBotForge.Views.RateLimitView
+TelegramBotForge.Views.RateLimitView.RateLimitView() -> void
+TelegramBotForge.Views.RawHtml
+TelegramBotForge.Views.RawHtml.Html.get -> string!
+TelegramBotForge.Views.RawHtml.Html.init -> void
+TelegramBotForge.Views.RawHtml.RawHtml() -> void
+TelegramBotForge.Views.RawHtml.RawHtml(string! Html) -> void
+TelegramBotForge.Views.SystemView
+TelegramBotForge.Views.SystemView.Configuration.get -> TelegramBotForge.Configurations.TelegramBotConfiguration!
+TelegramBotForge.Views.SystemView.SystemView() -> void
+TelegramBotForge.Views.UnknownCommandView
+TelegramBotForge.Views.UnknownCommandView.UnknownCommandView() -> void
+TelegramBotForge.Views.View
+TelegramBotForge.Views.View.Render() -> TelegramBotForge.Views.BotMessage!
+TelegramBotForge.Views.View.View() -> void
+TelegramBotForge.Views.View<TModel>
+TelegramBotForge.Views.View<TModel>.Render(TModel model) -> TelegramBotForge.Views.BotMessage!
+TelegramBotForge.Views.View<TModel>.View() -> void
+TelegramBotForge.Views.ViewAttribute
+TelegramBotForge.Views.ViewAttribute.Lifetime.get -> Microsoft.Extensions.DependencyInjection.ServiceLifetime
+TelegramBotForge.Views.ViewAttribute.Lifetime.set -> void
+TelegramBotForge.Views.ViewAttribute.Rich.get -> bool
+TelegramBotForge.Views.ViewAttribute.Rich.set -> void
+TelegramBotForge.Views.ViewAttribute.ViewAttribute() -> void
+TelegramBotForge.Views.ViewBase
+TelegramBotForge.Views.ViewDefaults
+TelegramBotForge.Views.ViewDefaults.BackText.get -> string!
+TelegramBotForge.Views.ViewDefaults.BackText.set -> void
+TelegramBotForge.Views.ViewDefaults.CancelText.get -> string!
+TelegramBotForge.Views.ViewDefaults.CancelText.set -> void
+TelegramBotForge.Views.ViewDefaults.ConfirmText.get -> string!
+TelegramBotForge.Views.ViewDefaults.ConfirmText.set -> void
+TelegramBotForge.Views.ViewDefaults.NextText.get -> string!
+TelegramBotForge.Views.ViewDefaults.NextText.set -> void
+TelegramBotForge.Views.ViewDefaults.Pagination(System.Action<TelegramBotForge.Views.PaginationOptions!>! configure) -> TelegramBotForge.Views.ViewDefaults!
+TelegramBotForge.Views.ViewDefaults.ViewDefaults() -> void
+virtual TelegramBotForge.Controllers.BotConstraintAttribute.Key.get -> string!
+virtual TelegramBotForge.Controllers.RouteAttribute.ParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
+virtual TelegramBotForge.Hosting.DelegatingBotClient.DownloadFile(string! filePath, System.IO.Stream! destination, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+virtual TelegramBotForge.Hosting.DelegatingBotClient.DownloadFile(Telegram.Bot.Types.TGFile! file, System.IO.Stream! destination, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+virtual TelegramBotForge.Hosting.DelegatingBotClient.SendRequest<TResponse>(Telegram.Bot.Requests.Abstractions.IRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TResponse>!
+virtual TelegramBotForge.Hosting.DelegatingBotClient.TestApi(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+virtual TelegramBotForge.Middleware.BotMessageFilterMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.BotMessageFilterMiddleware.ShouldIgnore(Telegram.Bot.Types.Update! update) -> bool
+virtual TelegramBotForge.Middleware.ErrorMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.ErrorMiddleware.OnErrorAsync(TelegramBotForge.BotContext! context, System.Exception! exception, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.RateLimitMiddleware.GetLimitKey(TelegramBotForge.BotContext! context) -> long
+virtual TelegramBotForge.Middleware.RateLimitMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.RateLimitMiddleware.OnLimitedAsync(TelegramBotForge.BotContext! context, bool firstTimeInWindow, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.UpdateLoggingMiddleware.InvokeAsync(TelegramBotForge.BotContext! context, TelegramBotForge.Middleware.BotNext! next, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<TelegramBotForge.Results.IBotResult?>!
+virtual TelegramBotForge.Middleware.UpdateLoggingMiddleware.LogUpdate(TelegramBotForge.BotContext! context, string! action, TelegramBotForge.Results.IBotResult? result, System.TimeSpan elapsed) -> void
+TelegramBotForge.Controllers.FromServicesAttribute
+TelegramBotForge.Controllers.FromServicesAttribute.FromServicesAttribute() -> void

@@ -46,6 +46,12 @@ public sealed class TelegramBotConfiguration
     public int IdleChatTtlSeconds { get; set; } = 600;
 
     /// <summary>
+    /// Gets or sets how long, in milliseconds, the bot waits for the next item of an album before it passes the album
+    /// to an <c>[Album]</c> action. Only used when the bot has one. From 50 to 5000.
+    /// </summary>
+    public int AlbumWaitMilliseconds { get; set; } = 500;
+
+    /// <summary>
     /// Gets or sets the overall HTTP request timeout for the Telegram API, in seconds.
     /// </summary>
     public int TelegramHttpTimeoutSeconds { get; set; } = 100;
@@ -114,6 +120,11 @@ public sealed class TelegramBotConfiguration
     /// Gets or sets the settings of the built-in rate limit, which is off by default.
     /// </summary>
     public TelegramBotRateLimitOptions RateLimit { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets how outgoing messages are kept under Telegram's limits.
+    /// </summary>
+    public TelegramBotFloodControlOptions FloodControl { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the settings of Telegram Stars payments, used when <c>AddStars</c> is called.

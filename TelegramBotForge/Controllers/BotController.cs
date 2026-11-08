@@ -73,6 +73,23 @@ public abstract class BotController
     protected static IBotResult Answer(string? text = null, bool alert = false) => new AnswerCallback(text, alert);
 
     /// <summary>
+    /// Answers an inline query with these results, for example <c>AnswerInline(items.Select(i => InlineResults.Article(...)))</c>.
+    /// </summary>
+    /// <param name="results">Up to 50 results.</param>
+    /// <param name="cacheSeconds">How long Telegram may reuse the answer for the same query.</param>
+    /// <param name="isPersonal">The results depend on the user.</param>
+    /// <param name="nextOffset">The offset of the next page, or <c>null</c> when there is none.</param>
+    protected static IBotResult AnswerInline(
+        IEnumerable<Telegram.Bot.Types.InlineQueryResults.InlineQueryResult> results,
+        int cacheSeconds = 300,
+        bool isPersonal = false,
+        string? nextOffset = null)
+    {
+        ArgumentNullException.ThrowIfNull(results);
+        return new AnswerInline(results.ToList(), cacheSeconds, isPersonal, nextOffset);
+    }
+
+    /// <summary>
     /// Deletes the message whose button was pressed, or the user's message.
     /// </summary>
     protected static IBotResult Delete() => new DeleteMessage();

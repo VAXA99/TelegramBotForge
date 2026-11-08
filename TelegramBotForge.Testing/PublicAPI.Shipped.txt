@@ -1,0 +1,69 @@
+#nullable enable
+override TelegramBotForge.Testing.UpdateResult.ToString() -> string!
+static TelegramBotForge.Testing.BotTestHost.Create(System.Reflection.Assembly! botAssembly, System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!>? configureServices = null, System.Action<TelegramBotForge.TelegramBotBuilder!>? configureBot = null, System.Collections.Generic.IDictionary<string!, string?>? configuration = null) -> TelegramBotForge.Testing.BotTestHost!
+static TelegramBotForge.Testing.BotTestHost.Create<TBotAssembly>(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!>? configureServices = null, System.Action<TelegramBotForge.TelegramBotBuilder!>? configureBot = null, System.Collections.Generic.IDictionary<string!, string?>? configuration = null) -> TelegramBotForge.Testing.BotTestHost!
+TelegramBotForge.Testing.BotTestHost
+TelegramBotForge.Testing.BotTestHost.DisposeAsync() -> System.Threading.Tasks.ValueTask
+TelegramBotForge.Testing.BotTestHost.GroupChat(long chatId = -1001000000001, long? userId = null, string? languageCode = "en") -> TelegramBotForge.Testing.TestChat!
+TelegramBotForge.Testing.BotTestHost.PrivateChat(long? userId = null, string? languageCode = "en", string! firstName = "Test", string? username = null) -> TelegramBotForge.Testing.TestChat!
+TelegramBotForge.Testing.BotTestHost.RegisterCommandsAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Testing.BotTestHost.SendUpdate(Telegram.Bot.Types.Update! update, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.BotTestHost.Services.get -> System.IServiceProvider!
+TelegramBotForge.Testing.BotTestHost.Telegram.get -> TelegramBotForge.Testing.FakeTelegramBotClient!
+TelegramBotForge.Testing.FakeTelegramBotClient
+TelegramBotForge.Testing.FakeTelegramBotClient.BotId.get -> long
+TelegramBotForge.Testing.FakeTelegramBotClient.ClearRequests() -> void
+TelegramBotForge.Testing.FakeTelegramBotClient.DownloadFile(string! filePath, System.IO.Stream! destination, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Testing.FakeTelegramBotClient.DownloadFile(Telegram.Bot.Types.TGFile! file, System.IO.Stream! destination, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+TelegramBotForge.Testing.FakeTelegramBotClient.ExceptionsParser.get -> Telegram.Bot.Exceptions.IExceptionParser!
+TelegramBotForge.Testing.FakeTelegramBotClient.ExceptionsParser.set -> void
+TelegramBotForge.Testing.FakeTelegramBotClient.FakeTelegramBotClient(long botId = 7000000001, string! username = "test_bot") -> void
+TelegramBotForge.Testing.FakeTelegramBotClient.Handle<TRequest>(System.Func<TRequest, object?>! handler) -> TelegramBotForge.Testing.FakeTelegramBotClient!
+TelegramBotForge.Testing.FakeTelegramBotClient.LocalBotServer.get -> bool
+TelegramBotForge.Testing.FakeTelegramBotClient.Me.get -> Telegram.Bot.Types.User!
+TelegramBotForge.Testing.FakeTelegramBotClient.MessagesIn(long chatId) -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.Message!>!
+TelegramBotForge.Testing.FakeTelegramBotClient.OnApiResponseReceived -> Telegram.Bot.AsyncEventHandler<Telegram.Bot.Args.ApiResponseEventArgs!>?
+TelegramBotForge.Testing.FakeTelegramBotClient.OnMakingApiRequest -> Telegram.Bot.AsyncEventHandler<Telegram.Bot.Args.ApiRequestEventArgs!>?
+TelegramBotForge.Testing.FakeTelegramBotClient.Requests.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Requests.Abstractions.IRequest!>!
+TelegramBotForge.Testing.FakeTelegramBotClient.RequestsOf<TRequest>() -> System.Collections.Generic.IReadOnlyList<TRequest>!
+TelegramBotForge.Testing.FakeTelegramBotClient.SendRequest<TResponse>(Telegram.Bot.Requests.Abstractions.IRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TResponse>!
+TelegramBotForge.Testing.FakeTelegramBotClient.TestApi(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+TelegramBotForge.Testing.FakeTelegramBotClient.Timeout.get -> System.TimeSpan
+TelegramBotForge.Testing.FakeTelegramBotClient.Timeout.set -> void
+TelegramBotForge.Testing.PaymentResult
+TelegramBotForge.Testing.PaymentResult.Accepted.get -> bool
+TelegramBotForge.Testing.PaymentResult.Checkout.get -> TelegramBotForge.Testing.UpdateResult!
+TelegramBotForge.Testing.PaymentResult.Checkout.init -> void
+TelegramBotForge.Testing.PaymentResult.Payment.get -> TelegramBotForge.Testing.UpdateResult?
+TelegramBotForge.Testing.PaymentResult.Payment.init -> void
+TelegramBotForge.Testing.PaymentResult.PaymentResult(TelegramBotForge.Testing.UpdateResult! Checkout, TelegramBotForge.Testing.UpdateResult? Payment) -> void
+TelegramBotForge.Testing.TestChat
+TelegramBotForge.Testing.TestChat.AddBot(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.BlockBot(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.Chat.get -> Telegram.Bot.Types.Chat!
+TelegramBotForge.Testing.TestChat.EditText(string! text, Telegram.Bot.Types.Message? message = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.GetState(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.State.ChatState?>!
+TelegramBotForge.Testing.TestChat.LastMessage.get -> Telegram.Bot.Types.Message?
+TelegramBotForge.Testing.TestChat.Messages.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Types.Message!>!
+TelegramBotForge.Testing.TestChat.PayInvoice(string? chargeId = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.PaymentResult!>!
+TelegramBotForge.Testing.TestChat.PressButton(string! label, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.RemoveBot(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendAlbum(int photos = 3, string? caption = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendCallback(string! data, Telegram.Bot.Types.Message? message = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendContact(string! phoneNumber = "+10000000000", bool ownContact = true, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendInlineQuery(string! query, string! offset = "", System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendLocation(double latitude, double longitude, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendMessage(System.Action<Telegram.Bot.Types.Message!>! fill, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendPhoto(string? caption = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.SendText(string! text, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.UnblockBot(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Testing.UpdateResult!>!
+TelegramBotForge.Testing.TestChat.User.get -> Telegram.Bot.Types.User!
+TelegramBotForge.Testing.UpdateResult
+TelegramBotForge.Testing.UpdateResult.CallbackAnswer.get -> Telegram.Bot.Requests.AnswerCallbackQueryRequest?
+TelegramBotForge.Testing.UpdateResult.CheckoutAnswer.get -> Telegram.Bot.Requests.AnswerPreCheckoutQueryRequest?
+TelegramBotForge.Testing.UpdateResult.InlineAnswer.get -> Telegram.Bot.Requests.AnswerInlineQueryRequest?
+TelegramBotForge.Testing.UpdateResult.IsEmpty.get -> bool
+TelegramBotForge.Testing.UpdateResult.Of<TRequest>() -> System.Collections.Generic.IReadOnlyList<TRequest>!
+TelegramBotForge.Testing.UpdateResult.Requests.get -> System.Collections.Generic.IReadOnlyList<Telegram.Bot.Requests.Abstractions.IRequest!>!
+TelegramBotForge.Testing.UpdateResult.Text.get -> string!
+TelegramBotForge.Testing.UpdateResult.Texts.get -> System.Collections.Generic.IReadOnlyList<string!>!

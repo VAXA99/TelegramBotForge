@@ -2,7 +2,7 @@
 
     <!-- Shared NuGet metadata for TelegramBotForge and TelegramBotForge.AspNetCore. -->
     <PropertyGroup>
-        <VersionPrefix>0.1.0</VersionPrefix>
+        <VersionPrefix>0.2.0</VersionPrefix>
         <Authors>VAXA99</Authors>
         <Copyright>Copyright (c) 2026 VAXA99</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -31,6 +31,20 @@
     <ItemGroup Condition="'$(IsPackable)' != 'false'">
         <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false"/>
     </ItemGroup>
+
+    <!-- Every change to the public API shows up in PublicAPI.Unshipped.txt, so it is reviewed on purpose (RS0016, RS0017).
+         On release, the lines of PublicAPI.Unshipped.txt move to PublicAPI.Shipped.txt. -->
+    <ItemGroup Condition="'$(IsPackable)' != 'false'">
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4" PrivateAssets="all"/>
+        <AdditionalFiles Include="PublicAPI.Shipped.txt"/>
+        <AdditionalFiles Include="PublicAPI.Unshipped.txt"/>
+    </ItemGroup>
+
+    <!-- RS0026/RS0027 (overloads with optional parameters) would flag DownloadFile, which ITelegramBotClient dictates, and
+         RS0022 flags View/View<T>, which are meant to be derived from although ViewBase is not. -->
+    <PropertyGroup Condition="'$(IsPackable)' != 'false'">
+        <NoWarn>$(NoWarn);RS0022;RS0026;RS0027</NoWarn>
+    </PropertyGroup>
 
     <!-- Packages are published from GitHub Actions only, so SourceLink is only needed there
          (locally it would fail -warnaserror builds while the repository has no remote). -->

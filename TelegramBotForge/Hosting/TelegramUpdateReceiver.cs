@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using System.Security.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using TelegramBotForge.Configurations;
+using TelegramBotForge.Routing;
 
 namespace TelegramBotForge.Hosting;
 
@@ -22,6 +24,8 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
     private readonly TelegramBotConfiguration _config;
     private readonly TelegramBotUpdateMode _mode;
     private readonly ILogger<TelegramUpdateReceiver> _logger;
+    private readonly Func<BotCommandRegistrar>? _commands;
+    private readonly BotIdentity? _identity;
     private int _networkErrorCount;
 
     public TelegramUpdateReceiver(
@@ -29,8 +33,20 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         IBotUpdateQueue queue,
         IOptions<TelegramBotConfiguration> options,
         TelegramBotBuilder builder,
-        ILogger<TelegramUpdateReceiver> logger)
+        ILogger<TelegramUpdateReceiver> logger,
+        IServiceProvider? services = null,
+        BotIdentity? identity = null)
     {
+        _identity = identity;
+        if (builder.RegistersCommands && services is not null)
+        {
+            _commands = () => new BotCommandRegistrar(
+                bot,
+                services.GetRequiredService<ActionRegistry>(),
+                builder.Localization,
+                services.GetRequiredService<ILoggerFactory>().CreateLogger("TelegramBotForge.Commands"));
+        }
+
         _bot = bot;
         _queue = queue;
         _config = options.Value;
@@ -43,6 +59,9 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         try
         {
             await ProbeTelegramAsync(stoppingToken);
+
+            if (_commands is not null)
+                await _commands().RegisterAsync(stoppingToken);
 
             if (_mode == TelegramBotUpdateMode.Webhook)
             {
@@ -119,10 +138,14 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         switch (exception)
         {
             case ApiRequestException { ErrorCode: 409 }:
+                if (_identity is not null)
+                    _identity.LastConflict = DateTimeOffset.UtcNow;
                 _logger.LogError("Telegram reports a conflict: another process is polling with the same token, or a webhook is set ({Reason})",
                     exception.Message);
                 break;
             case ApiRequestException { ErrorCode: 401 }:
+                if (_identity is not null)
+                    _identity.TokenRejected = true;
                 _logger.LogCritical("Telegram rejected the bot token (401 Unauthorized). Check {Section}:Token",
                     TelegramBotConfiguration.SectionName);
                 break;
@@ -142,6 +165,11 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         try
         {
             var me = await _bot.GetMe(cancellationToken: ct);
+            if (_identity is not null)
+            {
+                _identity.Username = me.Username;
+                _identity.TokenRejected = false;
+            }
             _logger.LogInformation("Connected to Telegram as @{Username} (id {BotId})", me.Username, me.Id);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -150,6 +178,8 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         }
         catch (Exception ex)
         {
+            if (ex is ApiRequestException { ErrorCode: 401 } && _identity is not null)
+                _identity.TokenRejected = true;
             _logger.LogError(ex, "Could not reach the Telegram API. Check the token and the network; the bot keeps retrying");
         }
     }
@@ -179,6 +209,8 @@ internal sealed class TelegramUpdateReceiver : BackgroundService
         }
         catch (Exception ex)
         {
+            if (_identity is not null)
+                _identity.WebhookFailed = true;
             _logger.LogCritical(ex, "Could not register the webhook {WebhookUrl}; the bot will receive no updates", webhook.Url);
         }
     }

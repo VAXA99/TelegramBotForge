@@ -12,6 +12,7 @@ using TelegramBotForge.Hosting;
 using TelegramBotForge.Telemetry;
 using TelegramBotForge.Testing;
 using TelegramBotForge.Views;
+using Message = Telegram.Bot.Types.Message;
 
 namespace TelegramBotForge.Tests;
 

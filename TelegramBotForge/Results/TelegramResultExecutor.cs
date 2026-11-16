@@ -24,7 +24,7 @@ public interface IBotResultExecutor
 /// <summary>
 /// The only place where results become Telegram API calls.
 /// </summary>
-internal sealed class TelegramResultExecutor : IBotResultExecutor
+internal sealed partial class TelegramResultExecutor : IBotResultExecutor
 {
     private readonly Microsoft.Extensions.Logging.ILogger? _logger;
     private int _warnedIgnoredAnswer;
@@ -35,6 +35,9 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
     {
         switch (result)
         {
+            case DeliverMessage delivery:
+                await DeliverAsync(context, delivery, ct);
+                break;
             case MultiResult multi:
                 foreach (var nested in multi.Results)
                     await ExecuteAsync(context, nested, ct);
@@ -166,7 +169,7 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
         {
             // The message already looks like this.
         }
-        catch (ApiRequestException ex) when (ex.ErrorCode == 400)
+        catch (ApiRequestException ex) when (IsMessageUnavailable(ex))
         {
             // The message can no longer be edited, or is not a rich message.
             await SendRichAsync(context, edit.Text, edit.Keyboard, ct);
@@ -197,7 +200,7 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
         {
             // The message already looks like this.
         }
-        catch (ApiRequestException ex) when (ex.ErrorCode == 400)
+        catch (ApiRequestException ex) when (IsMessageUnavailable(ex))
         {
             // The message can no longer be edited, for example because it is too old or was deleted.
             await SendAsync(context, edit.Text, edit.Keyboard, edit.ParseMode, edit.DisableLinkPreview, ct);
@@ -313,7 +316,7 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
         {
             // The message already looks like this.
         }
-        catch (ApiRequestException ex) when (ex.ErrorCode == 400)
+        catch (ApiRequestException ex) when (IsMessageUnavailable(ex) || IsMediaConversion(ex))
         {
             // For example the message is a text message, which Telegram cannot turn into a media message.
             await SendMediaAsync(context, edit.Media, edit.Caption, edit.Keyboard, edit.ParseMode, ct);
@@ -351,6 +354,14 @@ internal sealed class TelegramResultExecutor : IBotResultExecutor
     private static bool IsMessageNotModified(ApiRequestException exception) =>
         exception.ErrorCode == 400 &&
         exception.Message.Contains("message is not modified", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsMessageUnavailable(ApiRequestException exception) => exception.ErrorCode == 400 &&
+        (exception.Message.Contains("message to edit not found", StringComparison.OrdinalIgnoreCase) ||
+         exception.Message.Contains("message can't be edited", StringComparison.OrdinalIgnoreCase) ||
+         exception.Message.Contains("message cannot be edited", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsMediaConversion(ApiRequestException exception) => exception.ErrorCode == 400 &&
+        exception.Message.Contains("there is no media in the message to edit", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// The file of outgoing media, ready to send. Owns the stream of a local file until it was sent.

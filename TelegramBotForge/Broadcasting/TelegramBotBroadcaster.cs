@@ -10,6 +10,7 @@ using TelegramBotForge.Controllers;
 using TelegramBotForge.Results;
 using TelegramBotForge.Telemetry;
 using TelegramBotForge.Views;
+using Message = Telegram.Bot.Types.Message;
 
 namespace TelegramBotForge.Broadcasting;
 

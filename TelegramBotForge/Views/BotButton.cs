@@ -64,6 +64,15 @@ public sealed record BotButton
 
     internal bool IsDisabled { get; init; }
 
+    internal Text? RichLabel { get; init; }
+
+    /// <summary>Composes a label from plain text and custom emoji. Standard keyboards use its plain text.</summary>
+    public BotButton Label(Text content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        return this with { RichLabel = content };
+    }
+
     /// <summary>
     /// Gives the button a color, for example <c>Button("Delete", "item:delete:42").Style(ButtonStyle.Danger)</c>.
     /// </summary>

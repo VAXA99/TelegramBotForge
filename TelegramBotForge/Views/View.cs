@@ -1,23 +1,27 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace TelegramBotForge.Views;
 
 /// <summary>
-/// A view that needs no data, described with a <see cref="MessageBuilder"/>.
+/// Convenience base for automatically injected message factories. Public screen methods return <see cref="Message"/>.
 /// </summary>
 /// <example>
 /// <code>
 /// public sealed class MainMenuView : View
 /// {
-///     protected override void Build(MessageBuilder message) => message
-///         .Line($"&lt;b&gt;Welcome!&lt;/b&gt;")
-///         .Row(Button("📝 Register", "register"), Button("🛍 Catalog", "catalog:1"));
+///     public Message Start() => Message().Heading("Welcome!")
+///         .Row(Buttons.Callback("Register", "register"));
 /// }
 /// </code>
 /// </example>
 public abstract class View : ViewBase, IView
 {
+    /// <summary>Starts an immutable message using the calling screen's annotations. Screen names must be unique.</summary>
+    protected Message Message([CallerMemberName] string screen = "") =>
+        new(GetType().FullName + "." + screen, ViewMetadata.For(GetType(), screen), ConfigurePagination);
+
     /// <inheritdoc/>
     public BotMessage Render()
     {
@@ -29,11 +33,12 @@ public abstract class View : ViewBase, IView
     /// <summary>
     /// Describes the message.
     /// </summary>
-    protected abstract void Build(MessageBuilder message);
+    protected virtual void Build(MessageBuilder message) =>
+        throw new NotSupportedException($"View {GetType().Name}: return Message() from a screen method, or override the legacy Build method.");
 }
 
 /// <summary>
-/// A view that turns a model into a message, described with a <see cref="MessageBuilder"/>.
+/// Legacy compatibility base for Build/Render views with a model. New factories derive from <see cref="View"/>.
 /// </summary>
 /// <typeparam name="TModel">The data the view shows.</typeparam>
 /// <example>

@@ -9,7 +9,8 @@ using TelegramBotForge.Media;
 namespace TelegramBotForge.Views;
 
 /// <summary>
-/// Describes a message: its lines, media and keyboard. A view gets it in <c>Build</c>; the limits Telegram enforces
+/// Legacy compatibility builder for message lines, media and keyboards. New factories return <see cref="Message"/>.
+/// A legacy view gets this builder in <c>Build</c>; the limits Telegram enforces
 /// (text length, button data, buttons per row, one kind of keyboard) are checked when the view is rendered,
 /// with an error that names the view.
 /// </summary>
@@ -356,10 +357,14 @@ public sealed class MessageBuilder
 
         foreach (var button in row)
         {
+            if (string.IsNullOrWhiteSpace(button.RichLabel?.PlainText ?? button.Text))
+                throw Problem("a button label is empty.");
+            if (button.Kind == ButtonKind.Copy && button.Value.Length > 256)
+                throw Problem($"button \"{button.Text}\" copies more than 256 characters.");
+            if (button.RichLabel is { ButtonCompatible: false })
+                throw Problem($"button \"{button.Text}\" has unsupported formatting in its label; use plain text and custom emoji.");
             if (!_rich && button.IsDisabled)
                 throw Problem($"button \"{button.Text}\" is disabled, but disabled buttons only exist in rich messages ([View(Rich = true)]).");
-            if (_rich && button.Kind != ButtonKind.Callback)
-                throw Problem($"button \"{button.Text}\" is a {button.Kind} button; rich messages only support callback and disabled buttons.");
         }
 
         _inlineRows.Add(row.ToArray());
@@ -421,16 +426,13 @@ public sealed class MessageBuilder
         return html.ToString();
     }
 
-    private static string ToRichButton(BotButton button)
+    internal static string ToRichButton(BotButton button)
     {
-        var content = WebUtility.HtmlEncode(button.Text);
+        var content = button.RichLabel?.Html ?? WebUtility.HtmlEncode(button.Text);
         if (button.IconId is not null)
         {
             content = $"<tg-emoji emoji-id=\"{WebUtility.HtmlEncode(button.IconId)}\">{WebUtility.HtmlEncode(button.IconFallback)}</tg-emoji> {content}";
         }
-
-        if (button.IsDisabled)
-            return $"<tg-button type=\"disabled\">{content}</tg-button>";
 
         var style = button.Appearance switch
         {
@@ -440,16 +442,25 @@ public sealed class MessageBuilder
             _ => string.Empty
         };
 
-        return $"<tg-button type=\"callback_data\"{style} data=\"{WebUtility.HtmlEncode(button.Value)}\">{content}</tg-button>";
+        if (button.IsDisabled)
+            return $"<tg-button type=\"disabled\"{style}>{content}</tg-button>";
+        var action = button.Kind switch
+        {
+            ButtonKind.Url => $"type=\"url\" url=\"{WebUtility.HtmlEncode(button.Value)}\"",
+            ButtonKind.Copy => $"type=\"copy_text\" text=\"{WebUtility.HtmlEncode(button.Value)}\"",
+            _ => $"type=\"callback_data\" data=\"{WebUtility.HtmlEncode(button.Value)}\""
+        };
+        return $"<tg-button {action}{style}>{content}</tg-button>";
     }
 
     private static InlineKeyboardButton ToInlineButton(BotButton button)
     {
+        var label = button.RichLabel?.PlainText ?? button.Text;
         var inline = button.Kind switch
         {
-            ButtonKind.Url => InlineKeyboardButton.WithUrl(button.Text, button.Value),
-            ButtonKind.Copy => new InlineKeyboardButton(button.Text) { CopyText = new CopyTextButton { Text = button.Value } },
-            _ => InlineKeyboardButton.WithCallbackData(button.Text, button.Value)
+            ButtonKind.Url => InlineKeyboardButton.WithUrl(label, button.Value),
+            ButtonKind.Copy => new InlineKeyboardButton(label) { CopyText = new CopyTextButton { Text = button.Value } },
+            _ => InlineKeyboardButton.WithCallbackData(label, button.Value)
         };
 
         switch (button.Appearance)

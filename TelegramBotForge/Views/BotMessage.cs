@@ -5,7 +5,7 @@ using TelegramBotForge.Media;
 namespace TelegramBotForge.Views;
 
 /// <summary>
-/// A rendered message: what a view produces. The action decides how it is delivered,
+/// Legacy evaluated payload. New view factories return <see cref="Message"/> descriptions. The action decides how it is delivered,
 /// for example <c>Reply(view.Render(model))</c> or <c>Edit(view.Render(model))</c>.
 /// </summary>
 /// <param name="Text">The text. With <paramref name="Media"/>, it is the caption (Telegram allows up to 1024 characters).</param>

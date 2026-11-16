@@ -1,1 +1,67 @@
 #nullable enable
+*REMOVED*abstract TelegramBotForge.Views.View.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
+TelegramBotForge.BotContext.Deliveries.get -> System.Collections.Generic.IReadOnlyList<TelegramBotForge.Results.MessageDelivery!>!
+TelegramBotForge.Results.DeliverMessage
+TelegramBotForge.Results.DeliverMessage.Content.get -> TelegramBotForge.Views.Message!
+TelegramBotForge.Results.DeliverMessage.Content.init -> void
+TelegramBotForge.Results.DeliverMessage.DeliverMessage(TelegramBotForge.Views.Message! Content, bool Edit = false, int? MessageId = null, TelegramBotForge.Results.MessageDelivery? Previous = null) -> void
+TelegramBotForge.Results.DeliverMessage.Edit.get -> bool
+TelegramBotForge.Results.DeliverMessage.Edit.init -> void
+TelegramBotForge.Results.DeliverMessage.MessageId.get -> int?
+TelegramBotForge.Results.DeliverMessage.MessageId.init -> void
+TelegramBotForge.Results.DeliverMessage.Previous.get -> TelegramBotForge.Results.MessageDelivery?
+TelegramBotForge.Results.DeliverMessage.Previous.init -> void
+TelegramBotForge.Results.MessageDelivery
+TelegramBotForge.Results.MessageDelivery.AssociatedMessageIds.get -> System.Collections.Generic.IReadOnlyList<int>!
+TelegramBotForge.Results.MessageDelivery.ChatId.get -> long
+TelegramBotForge.Results.MessageDelivery.MessageDelivery(long chatId, int primaryMessageId, System.Collections.Generic.IReadOnlyList<int>! associatedMessageIds, bool rich) -> void
+TelegramBotForge.Results.MessageDelivery.PrimaryMessageId.get -> int
+TelegramBotForge.Results.MessageDelivery.Rich.get -> bool
+TelegramBotForge.Views.BotButton.Label(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.BotButton!
+TelegramBotForge.Views.Message
+TelegramBotForge.Views.Message.Buttons<T>(System.Collections.Generic.IEnumerable<T>! items, System.Func<T, TelegramBotForge.Views.BotButton!>! button, int perRow = 1) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Component(System.Func<TelegramBotForge.Views.Message!, TelegramBotForge.Views.Message!>! component) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Details(TelegramBotForge.Views.Text! summary, System.Func<TelegramBotForge.Views.Message!, TelegramBotForge.Views.Message!>! body) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Heading(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Link(TelegramBotForge.Views.Text! label, string! url) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.OnDelivered(System.Func<TelegramBotForge.Results.MessageDelivery!, System.Threading.CancellationToken, System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Page<T>(System.Collections.Generic.IReadOnlyList<T>! items, int page, int pageSize, System.Func<TelegramBotForge.Views.Message!, System.Collections.Generic.IReadOnlyList<T>!, TelegramBotForge.Views.PageInfo!, TelegramBotForge.Views.Message!>! content, System.Func<int, string!>! route, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Pagination(int page, int totalPages, System.Func<int, string!>! route, System.Action<TelegramBotForge.Views.PaginationOptions!>? configure = null) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Paragraph(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Photo(TelegramBotForge.Media.MediaFile! photo) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.RawHtml(string! trustedHtml) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.RemoveKeyboard() -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.RequestContact(string! label) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.RequestLocation(string! label) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.ReplyButtons(System.Collections.Generic.IEnumerable<string!>! labels, int perRow = 1) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Row(params TelegramBotForge.Views.BotButton![]! buttons) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Slideshow(System.Collections.Generic.IEnumerable<TelegramBotForge.Media.MediaFile!>! media) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Space() -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Table(System.Func<TelegramBotForge.Views.MessageTable!, TelegramBotForge.Views.MessageTable!>! table) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Video(TelegramBotForge.Media.MediaFile! video) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.MessageTable
+TelegramBotForge.Views.MessageTable.Field(TelegramBotForge.Views.Text! label, TelegramBotForge.Views.Text! value) -> TelegramBotForge.Views.MessageTable!
+TelegramBotForge.Views.MessageTable.MessageTable() -> void
+TelegramBotForge.Views.MessageTable.Row(params TelegramBotForge.Views.Text![]! cells) -> TelegramBotForge.Views.MessageTable!
+TelegramBotForge.Views.RichAttribute
+TelegramBotForge.Views.RichAttribute.RichAttribute() -> void
+TelegramBotForge.Views.StandardAttribute
+TelegramBotForge.Views.StandardAttribute.StandardAttribute() -> void
+TelegramBotForge.Views.Text
+TelegramBotForge.Views.View.Message(string! screen = "") -> TelegramBotForge.Views.Message!
+static TelegramBotForge.Controllers.BotController.Edit(TelegramBotForge.Views.Message! message, TelegramBotForge.Results.MessageDelivery? previous = null) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Controllers.BotController.Reply(TelegramBotForge.Views.Message! message) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Views.Message.Create<TView>(string! screen = "") -> TelegramBotForge.Views.Message!
+static TelegramBotForge.Views.Text.Bold(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Code(string! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Concat(params TelegramBotForge.Views.Text![]! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Emoji(string! customEmojiId, string! fallback) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Italic(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Join(TelegramBotForge.Views.Text! separator, System.Collections.Generic.IEnumerable<TelegramBotForge.Views.Text!>! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Link(TelegramBotForge.Views.Text! label, string! url) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Plain(string? value) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Preformatted(string! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Strike(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.Underline(TelegramBotForge.Views.Text! content) -> TelegramBotForge.Views.Text!
+static TelegramBotForge.Views.Text.implicit operator TelegramBotForge.Views.Text!(string? value) -> TelegramBotForge.Views.Text!
+virtual TelegramBotForge.Views.View.Build(TelegramBotForge.Views.MessageBuilder! message) -> void

@@ -2,6 +2,20 @@
 
 All notable changes to TelegramBotForge. The public API of each package is listed in its `PublicAPI.Shipped.txt`.
 
+## Unreleased
+
+- Annotated, immutable message factories: public screen methods return `Views.Message` directly; `View` requires no override.
+- Cached method/view mode resolution with `[Rich]` and `[Standard]`, inherited annotations, and startup ambiguity checks.
+- Escaped inline content, headings, tables, details, components, ordered button rows and registered photo/video slideshows.
+- Structured standard/rich delivery through `Reply`/`Edit`, actual delivery receipts, associated media cleanup and callbacks.
+- Explicit `RawHtml` insertion with mode-aware structure, length, reference and keyboard validation.
+- Existing callback/URL/copy factories now serialize all three actions in rich messages; composed labels support text and emoji.
+- Compatibility: `View<T>`, `Build`/`Render`, `MessageBuilder`, `BotMessage`, escaped legacy interpolation and result factories remain.
+- Source compatibility: importing both message namespaces may require a `Message` alias; `[View]` now inherits mode and lifetime.
+- Edit errors: only known missing/uneditable targets trigger replacement. Invalid payloads and unrelated 400 errors propagate.
+- Corrected the SDK feature-band version in `global.json` so repository builds can run.
+- See [annotated views and migration](docs/views.md). Public API additions/removals are recorded in `PublicAPI.Unshipped.txt`.
+
 ## 0.2.0
 
 ### New packages

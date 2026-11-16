@@ -19,7 +19,7 @@ namespace TelegramBotForge.Controllers;
 ///     public async Task&lt;IBotResult&gt; Open(int id)
 ///     {
 ///         var product = await products.GetAsync(id);
-///         return product is null ? Answer("Product not found.") : Edit(card.Render(product));
+///         return product is null ? Answer("Product not found.") : Edit(card.Product(product));
 ///     }
 /// }
 /// </code>
@@ -49,6 +49,9 @@ public abstract class BotController
     protected static IBotResult Reply(BotMessage message) =>
         message.Media is null ? SendText.From(message) : SendMedia.From(message);
 
+    /// <summary>Sends an annotated message description.</summary>
+    protected static IBotResult Reply(Message message) => new DeliverMessage(message);
+
     /// <summary>
     /// Sends a photo, video, document or other media, for example <c>ReplyMedia(MediaFile.From(media), "Got it")</c>.
     /// </summary>
@@ -66,6 +69,9 @@ public abstract class BotController
     /// </summary>
     protected static IBotResult Edit(BotMessage message) =>
         message.Media is null ? EditText.From(message) : EditMedia.From(message);
+
+    /// <summary>Edits the interactive message. Supply the previous receipt to manage associated media.</summary>
+    protected static IBotResult Edit(Message message, MessageDelivery? previous = null) => new DeliverMessage(message, Edit: true, Previous: previous);
 
     /// <summary>
     /// Answers the pressed button, optionally with a notification or an alert.

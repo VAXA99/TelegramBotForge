@@ -6,10 +6,10 @@ Build Telegram bots in .NET the way you build ASP.NET Core apps: **controllers**
 public sealed class StartController(MainMenuView menu) : BotController
 {
     [Command("start")]
-    public IBotResult Start() => Reply(menu.Render());
+    public IBotResult Start() => Reply(menu.Start());
 
     [Callback("menu")]
-    public IBotResult Menu() => Edit(menu.Render());
+    public IBotResult Menu() => Edit(menu.Start());
 }
 ```
 
@@ -268,59 +268,46 @@ so `/where` can have one action for private chats and another for groups. Derive
 
 ## Views
 
+Write one ordinary method per screen. Views are automatically discovered and constructor-injected.
+
 ```csharp
 using TelegramBotForge.Views;
 
-public sealed record Product(int Id, string Name, decimal Price);
-
-public sealed class ProductView : View<Product>
+public sealed class MainMenuView : View
 {
-    protected override void Build(MessageBuilder message, Product product) => message
-        .Line($"<b>{product.Name}</b> — {product.Price:0.00} $")   // values are HTML-escaped
-        .Row(Button("🛒 Add to cart", $"cart:add:{product.Id}"))
-        .Back("catalog:1");
+    public Message Start(string name = "Guest") => Message()
+        .Heading($"Welcome, {name}")
+        .Paragraph("Choose an action")
+        .Row(Buttons.Callback("Catalog", "catalog:1").Style(ButtonStyle.Primary));
+}
+
+[View(Rich = true)]
+public sealed class ProductView : View
+{
+    public Message Product(string name, string description) => Message()
+        .Heading(name).Paragraph(Text.Bold(description))
+        .Table(table => table.Field("Availability", "In stock"))
+        .Row(Buttons.Callback("Add to cart", "cart:add"));
+
+    [Standard]
+    public Message Support() => Message().Paragraph("Contact support")
+        .Link("Support", "https://t.me/MeetAuraSupportBot");
 }
 ```
 
-Views can also carry a reply keyboard, the buttons under the input field: `.ReplyButtons(["☕ Menu", "👤 Profile"], perRow: 2)`,
-`.RequestContact("📞 Share phone")`, `.RequestLocation(...)` and `.RemoveKeyboard()`. Route those buttons with `[ButtonText]`.
+Controllers call `Reply(menu.Start())` or `Edit(product.Product(name, description))` directly.
+No `Build`, `Render`, renderer injection or terminal conversion is required.
+Strings are escaped text. `RawHtml(trustedHtml)` explicitly inserts markup.
+Method annotations override inherited view annotations; standard is the default.
+Messages are immutable, and components inherit the parent mode.
 
-Lists get pagination with one call:
+Tables, details, inline formatting, button rows and structured photo/video slideshows work through one API.
+Standard media is delivered alongside a primary text/control message; rich media is embedded with library-managed
+attachments. Delivery receipts expose primary and associated IDs for tracked edits and cleanup.
 
-```csharp
-message.Page(products, page, pageSize: 5,
-    item: p => Button(p.Name, $"product:{p.Id}"),
-    route: page => $"catalog:{page}");
-```
-
-When a page needs more than one button per item, pass `renderPage` instead of `item`. The items of the page are
-picked for you; your renderer adds whatever the page shows, and the pagination row comes after it:
-
-```csharp
-message.Page(orders, page, pageSize: 5,
-    renderPage: (body, visible, info) =>
-    {
-        if (visible.Count == 0)
-        {
-            body.Line($"No orders yet.");
-            return;
-        }
-
-        body.Line($"<b>Orders {info.FirstItemNumber}–{info.LastItemNumber} of {info.TotalItems}</b>");
-        foreach (var order in visible)
-            body.Row(Button($"#{order.Id} · {order.Total}⭐", $"order:{order.Id}"), Button("❌", $"cancel:{order.Id}"));
-    },
-    route: p => $"orders:{p}",
-    configure: options => options.Style(PaginationStyle.FirstLast));
-```
-
-Pages start at 1, and a page out of range shows the nearest one. An empty list is one empty page: the renderer gets no
-items, so it can say so, and the row is hidden unless `ShowSinglePage()` is set. In a rich view (`[View(Rich = true)]`)
-a page can also be a whole table: `body.Line(Raw("<table>…</table>"))`, with values HTML-escaped by you.
-
-Labels, edge behavior and layout can be changed per call, per view (`ConfigurePagination`) or for the whole bot (`ConfigureViews`).
-
-Telegram's limits (message length, button data size, buttons per row) are checked when a view is rendered, not when Telegram rejects the request.
+See the [annotated views guide](docs/views.md) for components, media, mode fallbacks, receipts, validation,
+pagination, raw HTML and migration from `View<T>`/`Build`/`Render`.
+Legacy APIs remain available for compatibility.
 
 ## Forms and conversation state
 

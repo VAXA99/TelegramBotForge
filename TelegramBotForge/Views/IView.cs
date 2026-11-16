@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace TelegramBotForge.Views;
 
 /// <summary>
-/// Marks a class as a view. Derive from <see cref="View"/> or <see cref="View{TModel}"/> instead of implementing this directly.
+/// Optional view discovery marker, implemented by the View bases. Annotated classes can also be discovered without this interface.
 /// Views are found at startup and registered in the DI container, so controllers get them through their constructor.
 /// </summary>
 public interface IBotView
@@ -37,9 +37,10 @@ public interface IView<in TModel> : IBotView
 }
 
 /// <summary>
-/// Optional settings of a view. Without it a view is scoped and sends normal messages.
+/// Marks an ordinary class for discovery and configures a view's defaults. View subclasses are discovered without it;
+/// their default lifetime is scoped and their default mode is standard.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = true)]
 public sealed class ViewAttribute : Attribute
 {
     /// <summary>
@@ -50,8 +51,8 @@ public sealed class ViewAttribute : Attribute
 
     /// <summary>
     /// Gets or sets a value indicating whether the view sends a Telegram rich message:
-    /// its buttons are placed inside the message, and they can be disabled. Rich messages cannot have media
-    /// or buttons under the input field.
+    /// its buttons and structured photo/video media are embedded in the content. Rich messages cannot have
+    /// buttons under the input field. Method annotations override this default.
     /// </summary>
     public bool Rich { get; set; }
 }
@@ -68,12 +69,10 @@ internal static class ViewRegistration
             var attribute = type.GetCustomAttribute<ViewAttribute>();
             var isView = typeof(IBotView).IsAssignableFrom(type);
 
-            if (attribute is not null && !isView)
-                throw new InvalidOperationException($"{type.FullName} has [View] but is not a view. Derive it from View or View<TModel>.");
-
-            if (!isView || !type.IsClass || type.IsAbstract || type.IsGenericTypeDefinition)
+            if ((!isView && attribute is null) || !type.IsClass || type.IsAbstract || type.IsGenericTypeDefinition)
                 continue;
 
+            ViewMetadata.Validate(type);
             services.Add(new ServiceDescriptor(type, type, attribute?.Lifetime ?? ServiceLifetime.Scoped));
         }
     }

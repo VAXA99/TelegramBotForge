@@ -182,6 +182,11 @@ public sealed class BotContext
     /// </summary>
     public IDictionary<string, object?> Items { get; } = new Dictionary<string, object?>();
 
+    /// <summary>Actual receipts for structured messages delivered by this update, in result order.</summary>
+    public IReadOnlyList<TelegramBotForge.Results.MessageDelivery> Deliveries => _deliveries.AsReadOnly();
+    internal List<TelegramBotForge.Results.MessageDelivery> DeliveredMessages => _deliveries;
+    private readonly List<TelegramBotForge.Results.MessageDelivery> _deliveries = [];
+
     /// <summary>
     /// Gets or sets a value indicating whether the button press was already answered, so it is not answered twice.
     /// </summary>

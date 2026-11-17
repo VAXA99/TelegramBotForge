@@ -7,6 +7,7 @@ namespace TelegramBotForge.Middleware;
 /// Built-in middleware, always last before the router. Loads the conversation state of the chat and user before routing,
 /// because <c>[State]</c> actions depend on it, and saves or deletes it after the action.
 /// If the action fails, its changes to the state are not saved.
+/// Changes made by delivery and finalization callbacks are saved again, even when delivery fails or is cancelled.
 /// </summary>
 public sealed class StateMiddleware : IBotMiddleware
 {
@@ -40,19 +41,24 @@ public sealed class StateMiddleware : IBotMiddleware
 
         var result = await next(context, ct);
 
-        if (state.IsModified)
+        await SaveAsync(ct);
+        context.SaveStateAfterResult = SaveAsync;
+        return result;
+
+        async Task SaveAsync(CancellationToken token)
         {
+            if (!state.IsModified)
+                return;
             if (state.IsEmpty)
             {
-                await _storage.RemoveAsync(key, ct);
+                await _storage.RemoveAsync(key, token);
             }
             else
             {
                 state.UpdatedAt = _time.GetUtcNow();
-                await _storage.SaveAsync(key, state, _timeToLive, ct);
+                await _storage.SaveAsync(key, state, _timeToLive, token);
             }
+            state.AcceptChanges();
         }
-
-        return result;
     }
 }

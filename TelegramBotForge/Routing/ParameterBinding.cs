@@ -137,7 +137,7 @@ internal static class ValueConverter
             case TypeCode.Decimal: ok = decimal.TryParse(raw, NumberStyles.Number, invariant, out var m); value = m; return ok;
         }
 
-        if (t == typeof(Guid) && Guid.TryParse(raw, out var guid))
+        if (t == typeof(Guid) && (Guid.TryParse(raw, out var guid) || DeepLinks.ShortId.TryDecode(raw, out guid)))
         {
             value = guid;
             return true;

@@ -22,21 +22,34 @@ internal sealed class LocalizationMiddleware : IBotMiddleware
                       ?? _options.Default;
 
         context.Culture = culture;
+        context.SetCurrentCulture = _options.SetCurrentCulture;
+        using var cultureScope = new BotCultureScope(culture, context.SetCurrentCulture);
+        return await next(context, ct);
+    }
+}
 
-        var previousUi = CultureInfo.CurrentUICulture;
-        var previous = CultureInfo.CurrentCulture;
+internal sealed class BotCultureScope : IDisposable
+{
+    private readonly CultureInfo _previous = CultureInfo.CurrentCulture;
+    private readonly CultureInfo _previousUi = CultureInfo.CurrentUICulture;
+
+    public BotCultureScope(CultureInfo? culture, bool setCurrentCulture)
+    {
+        Apply(culture, setCurrentCulture);
+    }
+
+    public void Apply(CultureInfo? culture, bool setCurrentCulture)
+    {
+        if (culture is null)
+            return;
         CultureInfo.CurrentUICulture = culture;
-        if (_options.SetCurrentCulture)
+        if (setCurrentCulture)
             CultureInfo.CurrentCulture = culture;
+    }
 
-        try
-        {
-            return await next(context, ct);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = previousUi;
-            CultureInfo.CurrentCulture = previous;
-        }
+    public void Dispose()
+    {
+        CultureInfo.CurrentUICulture = _previousUi;
+        CultureInfo.CurrentCulture = _previous;
     }
 }

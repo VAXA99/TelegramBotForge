@@ -31,18 +31,16 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
 
     public TelegramResultExecutor(Microsoft.Extensions.Logging.ILogger<TelegramResultExecutor>? logger = null) => _logger = logger;
 
-    public async Task ExecuteAsync(BotContext context, IBotResult result, CancellationToken ct)
+    public Task ExecuteAsync(BotContext context, IBotResult result, CancellationToken ct) =>
+        ResultLifecycleExtensions.ExecuteAsync(context, result, ExecuteCoreAsync, ct);
+
+    private async Task ExecuteCoreAsync(BotContext context, IBotResult result, CancellationToken ct)
     {
         switch (result)
         {
             case DeliverMessage delivery:
-                await DeliverAsync(context, delivery, ct);
+                await ExecuteDeliveryAsync(context, delivery, ct);
                 break;
-            case MultiResult multi:
-                foreach (var nested in multi.Results)
-                    await ExecuteAsync(context, nested, ct);
-                break;
-
             case SendText { Rich: true } send:
                 await SendRichAsync(context, send.Text, send.Keyboard, ct);
                 break;
@@ -128,22 +126,24 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
     private static async Task SendAsync(
         BotContext context, string text, ReplyMarkup? keyboard, ParseMode parseMode, bool disableLinkPreview, CancellationToken ct)
     {
-        await context.Bot.SendMessage(
+        var sent = await context.Bot.SendMessage(
             chatId: RequireChatId(context),
             text: text,
             parseMode: parseMode,
             replyMarkup: keyboard,
             linkPreviewOptions: GetLinkPreviewOptions(disableLinkPreview),
             cancellationToken: ct);
+        RecordDelivery(context, sent.Id, rich: false);
     }
 
     private static async Task SendRichAsync(BotContext context, string html, ReplyMarkup? keyboard, CancellationToken ct)
     {
-        await context.Bot.SendRichMessage(
+        var sent = await context.Bot.SendRichMessage(
             chatId: RequireChatId(context),
             richMessage: new InputRichMessage { Html = html },
             replyMarkup: keyboard,
             cancellationToken: ct);
+        RecordDelivery(context, sent.Id, rich: true);
     }
 
     private static async Task EditRichAsync(BotContext context, EditText edit, CancellationToken ct)
@@ -157,17 +157,18 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
 
         try
         {
-            await context.Bot.EditMessageText(
+            var edited = await context.Bot.EditMessageText(
                 chatId: RequireChatId(context),
                 messageId: messageId.Value,
                 text: null!,
                 replyMarkup: edit.Keyboard,
                 richMessage: new InputRichMessage { Html = edit.Text },
                 cancellationToken: ct);
+            RecordDelivery(context, edited.Id, rich: true);
         }
         catch (ApiRequestException ex) when (IsMessageNotModified(ex))
         {
-            // The message already looks like this.
+            RecordDelivery(context, messageId.Value, rich: true);
         }
         catch (ApiRequestException ex) when (IsMessageUnavailable(ex))
         {
@@ -187,7 +188,7 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
 
         try
         {
-            await context.Bot.EditMessageText(
+            var edited = await context.Bot.EditMessageText(
                 chatId: RequireChatId(context),
                 messageId: messageId.Value,
                 text: edit.Text,
@@ -195,10 +196,11 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
                 replyMarkup: edit.Keyboard,
                 linkPreviewOptions: GetLinkPreviewOptions(edit.DisableLinkPreview),
                 cancellationToken: ct);
+            RecordDelivery(context, edited.Id, rich: false);
         }
         catch (ApiRequestException ex) when (IsMessageNotModified(ex))
         {
-            // The message already looks like this.
+            RecordDelivery(context, messageId.Value, rich: false);
         }
         catch (ApiRequestException ex) when (IsMessageUnavailable(ex))
         {
@@ -243,42 +245,44 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
 
         var chatId = RequireChatId(context);
         await using var file = OpenedFile.Open(media);
+        Message sent;
 
         switch (media.Type)
         {
             case MediaType.Photo:
-                await context.Bot.SendPhoto(chatId: chatId, photo: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendPhoto(chatId: chatId, photo: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Video:
-                await context.Bot.SendVideo(chatId: chatId, video: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendVideo(chatId: chatId, video: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Animation:
-                await context.Bot.SendAnimation(chatId: chatId, animation: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendAnimation(chatId: chatId, animation: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Document:
-                await context.Bot.SendDocument(chatId: chatId, document: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendDocument(chatId: chatId, document: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Audio:
-                await context.Bot.SendAudio(chatId: chatId, audio: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendAudio(chatId: chatId, audio: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Voice:
-                await context.Bot.SendVoice(chatId: chatId, voice: file.Input, caption: caption, parseMode: parseMode,
+                sent = await context.Bot.SendVoice(chatId: chatId, voice: file.Input, caption: caption, parseMode: parseMode,
                     replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.VideoNote:
-                await context.Bot.SendVideoNote(chatId: chatId, videoNote: file.Input, replyMarkup: keyboard, cancellationToken: ct);
+                sent = await context.Bot.SendVideoNote(chatId: chatId, videoNote: file.Input, replyMarkup: keyboard, cancellationToken: ct);
                 break;
             case MediaType.Sticker:
-                await context.Bot.SendSticker(chatId: chatId, sticker: file.Input, replyMarkup: keyboard, cancellationToken: ct);
+                sent = await context.Bot.SendSticker(chatId: chatId, sticker: file.Input, replyMarkup: keyboard, cancellationToken: ct);
                 break;
             default:
                 throw new NotSupportedException($"Sending {media.Type} is not supported.");
         }
+        RecordDelivery(context, sent.Id, rich: false);
     }
 
     private static async Task EditMediaAsync(BotContext context, EditMedia edit, CancellationToken ct)
@@ -305,16 +309,17 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
                 _ => new InputMediaAudio(file.Input) { Caption = edit.Caption, ParseMode = edit.ParseMode }
             };
 
-            await context.Bot.EditMessageMedia(
+            var edited = await context.Bot.EditMessageMedia(
                 chatId: RequireChatId(context),
                 messageId: messageId.Value,
                 media: media,
                 replyMarkup: edit.Keyboard,
                 cancellationToken: ct);
+            RecordDelivery(context, edited.Id, rich: false);
         }
         catch (ApiRequestException ex) when (IsMessageNotModified(ex))
         {
-            // The message already looks like this.
+            RecordDelivery(context, messageId.Value, rich: false);
         }
         catch (ApiRequestException ex) when (IsMessageUnavailable(ex) || IsMediaConversion(ex))
         {
@@ -331,7 +336,7 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
                       ?? throw new InvalidOperationException($"Stars product \"{invoice.ProductCode}\" does not exist.");
         var buyer = context.UserId ?? throw new InvalidOperationException("An invoice needs a user: this update has none.");
 
-        await context.Bot.SendInvoice(
+        var sent = await context.Bot.SendInvoice(
             chatId: RequireChatId(context),
             title: product.Title,
             description: product.Description,
@@ -340,6 +345,14 @@ internal sealed partial class TelegramResultExecutor : IBotResultExecutor
             prices: [new LabeledPrice(product.Title, product.Price)],
             providerToken: string.Empty,
             cancellationToken: ct);
+        RecordDelivery(context, sent.Id, rich: false);
+    }
+
+    private static void RecordDelivery(BotContext context, int messageId, bool rich)
+    {
+        var receipt = new MessageDelivery(RequireChatId(context), messageId, [], rich);
+        context.DeliveredMessages.Add(receipt);
+        context.DeliveryCommitted?.Invoke(receipt);
     }
 
     // A check before payment has no chat; answers go to the buyer's private chat.

@@ -118,6 +118,7 @@ public sealed class ChatState
     }
 
     internal ChatState Clone() => new(_current, _data, UpdatedAt);
+    internal void AcceptChanges() => IsModified = false;
 }
 
 /// <summary>

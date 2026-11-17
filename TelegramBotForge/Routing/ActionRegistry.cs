@@ -338,7 +338,7 @@ internal sealed class ActionRegistry
             !placeholders.Contains(parameter.Name!) &&
             string.Equals(parameter.Name, "args", StringComparison.OrdinalIgnoreCase) &&
             (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(string[])));
-        if (usesArgs && !routes.Any(route => route is CommandAttribute))
+        if (usesArgs && !routes.Any(route => route is CommandAttribute or DeepLinkAttribute))
             errors.Add($"{name}: 'args' is what follows a command, but the action has no [Command] route.");
 
         var isPayment = routes.Any(route => route is Payments.PaidAttribute or Payments.PreCheckoutAttribute);

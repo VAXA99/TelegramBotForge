@@ -182,9 +182,11 @@ public sealed class BotContext
     /// </summary>
     public IDictionary<string, object?> Items { get; } = new Dictionary<string, object?>();
 
-    /// <summary>Actual receipts for structured messages delivered by this update, in result order.</summary>
+    /// <summary>Actual receipts for messages delivered by this update, in result order.</summary>
     public IReadOnlyList<TelegramBotForge.Results.MessageDelivery> Deliveries => _deliveries.AsReadOnly();
     internal List<TelegramBotForge.Results.MessageDelivery> DeliveredMessages => _deliveries;
+    internal Action<TelegramBotForge.Results.MessageDelivery>? DeliveryCommitted { get; set; }
+    internal Func<CancellationToken, Task>? SaveStateAfterResult { get; set; }
     private readonly List<TelegramBotForge.Results.MessageDelivery> _deliveries = [];
 
     /// <summary>
@@ -201,6 +203,7 @@ public sealed class BotContext
     /// Gets or sets the culture of the user, set by <c>UseLocalization()</c>; <c>null</c> without it.
     /// </summary>
     public System.Globalization.CultureInfo? Culture { get; internal set; }
+    internal bool SetCurrentCulture { get; set; }
 
     private IReadOnlyList<BotMedia>? _album;
     private BotMedia? _media;

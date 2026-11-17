@@ -4,6 +4,20 @@ All notable changes to TelegramBotForge. The public API of each package is liste
 
 ## Unreleased
 
+- Keep the selected update culture through result execution, delivery/finalization callbacks, final state persistence and scope disposal, restoring it on success and failure.
+- Add `IBotResult.OnDelivered` for actual receipts from sends, edits and replacements; sequences notify per confirmed receipt in order.
+- Add structured and legacy `RequestUsers` buttons with complete option snapshots and existing reply-keyboard validation.
+
+- Confirmed deliveries now expose post-delivery failures as `MessageDeliveryException` with the receipt and original errors.
+- Broadcasts report callback, finalizer, cleanup and `OnSent` errors in `PostDeliveryErrors`, counting delivered chats only in `Sent` and excluding them from retries even after cancellation.
+- Final state persistence runs in the update dispatcher after all result finalizers, including those added by outer middleware, using a token independent of delivery cancellation.
+
+- Public `IBotMessageSender` for structured background sends/edits; `IBotBroadcaster` gains `Message` and per-chat factory overloads using that sender.
+- `Finally` on results and messages, including cancellation; receipt-based `DeleteAfter` for primary and associated media through a hosted in-memory scheduler.
+- State changes in delivery/finalization callbacks are saved after execution, including failed/cancelled deliveries; action failure behavior is unchanged.
+- Automatic bot-identity deep-link building (`start` / `startgroup`), immediate payload validation, typed `[DeepLink]` routes and startup checks.
+- Canonical 22-character base64url GUID helpers (`ShortId`) with typed GUID binding in deep links and callbacks.
+
 - Annotated, immutable message factories: public screen methods return `Views.Message` directly; `View` requires no override.
 - Cached method/view mode resolution with `[Rich]` and `[Standard]`, inherited annotations, and startup ambiguity checks.
 - Escaped inline content, headings, tables, details, components, ordered button rows and registered photo/video slideshows.

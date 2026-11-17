@@ -112,7 +112,7 @@ public sealed class MessageFactoryTests
         var previous = context.Deliveries.Last();
         MessageDelivery? observed = null;
         bot.Handle<DeleteMessageRequest>(_ => throw new ApiRequestException("Forbidden", 403));
-        await Assert.ThrowsAsync<AggregateException>(() => Deliver(context, new DeliverMessage(
+        await Assert.ThrowsAsync<MessageDeliveryException>(() => Deliver(context, new DeliverMessage(
             Rich().OnDelivered((receipt, _) => { observed = receipt; return Task.CompletedTask; }), Edit: true, Previous: previous)));
         Assert.Same(context.Deliveries.Last(), observed);
         Assert.Equal(2, bot.RequestsOf<DeleteMessageRequest>().Count);

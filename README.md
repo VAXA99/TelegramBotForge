@@ -116,6 +116,29 @@ public IBotResult Start(string? args) =>
 public IBotResult Ban(string[] args) => ...   // /ban 42 spam → ["42", "spam"]
 ```
 
+### Typed deep links
+
+Inject `IBotDeepLinks` from `TelegramBotForge.DeepLinks` to build links with the bot's username automatically:
+
+```csharp
+var link = await links.CreateAsync($"ref{userId}", ct: ct); // https://t.me/YourBot?start=ref42
+var groupLink = await links.CreateAsync("welcome", group: true, ct: ct); // ?startgroup=welcome
+
+[DeepLink("ref{userId:long}")]
+public IBotResult Referral(long userId) => Reply($"Invited by {userId}");
+```
+
+Payloads are validated synchronously before any request: 1-64 characters, using only `A-Z`, `a-z`, `0-9`, `_`, `-`,
+as specified by [Telegram](https://core.telegram.org/bots/features#deep-linking). The username comes from the connected
+bot identity or `GetMe` before connection. Both private and group links arrive as `/start`; deep-link routes run before
+general commands. Unknown payloads and values that cannot convert fall through to the usual `[Command("start")]` route.
+Commands mentioning another bot are ignored. Templates, bindings and duplicate routes are checked at startup.
+
+`ShortId.Encode(guid)` / `ShortId.Decode(text)` pack GUIDs into 22 base64url characters using .NET GUID byte order.
+`TryDecode` rejects invalid or noncanonical values. A `Guid` action parameter accepts both ordinary and short GUIDs,
+in callback and deep-link templates: `[DeepLink("ref{id}")]` with `Guid id`.
+`$"cart:{ShortId.Encode(cartId)}:item:{ShortId.Encode(itemId)}"` takes 55 bytes of callback data.
+
 ### The `/` menu
 
 Give commands a description and call `.RegisterCommands()`: when the bot starts, the menu is set from your code,
@@ -379,6 +402,11 @@ Every update then runs in the user's language: `CultureInfo.CurrentUICulture` (a
 system for you. By default the language is the one of the user's Telegram app. A language that isn't supported falls back to its
 parent (`pt-br` → `pt`), then to the default. An action can take a `CultureInfo` parameter, and middleware can read `context.Culture`.
 
+The selected culture also applies while executing results: service lookups such as Stars product descriptions,
+`OnDelivered`, `Finally`, final state persistence and update-scope disposal all use that language, including on delivery
+failure or cancellation. The previous culture is restored when processing finishes. `SetCurrentCulture = false`
+changes only `CurrentUICulture`, preserving the caller's number/date formatting culture throughout.
+
 When users pick a language in your bot, return it from your own resolver. `null` falls back to the Telegram language:
 
 ```csharp
@@ -456,6 +484,30 @@ app.Run();
 ```
 
 ## Broadcasts
+
+`IBotMessageSender` from `TelegramBotForge.Results` sends structured `Views.Message` values from background jobs
+and endpoints through the same delivery engine used by controllers:
+
+```csharp
+var receipt = await sender.SendAsync(chatId, news.News(post), ct);
+receipt = await sender.EditAsync(receipt, news.News(updatedPost), ct);
+// Or edit by chat/message ID when there are no earlier associated media to track:
+receipt = await sender.EditAsync(chatId, messageId, news.News(updatedPost), ct);
+```
+
+Each call owns its DI scope and returns actual `MessageDelivery` IDs. Pass a previous receipt to track attached media
+across edits. `IBotBroadcaster.SendAsync` accepts both `Message` and per-chat factories returning `ValueTask<Message?>`
+(return `null` to skip); these overloads use the registered `IBotMessageSender`. `OnSent` receives the primary ID,
+and `Message.OnDelivered` receives the complete receipt. Legacy `BotMessage` overloads remain available.
+
+If a callback, finalizer or cleanup fails after confirmation, `IBotMessageSender` throws `MessageDeliveryException`:
+its `Delivery` is the confirmed receipt, and `InnerExceptions` / `Flatten()` retain the original errors. Do not resend
+that message. Broadcasts count such chats in `Sent` and record these errors separately in `PostDeliveryErrors`, including
+`OnSent` failures. They never enter `Failed`, `Unreachable` or `Remaining`. `OnSent` is still attempted when an earlier
+post-delivery callback failed. Cancellation after confirmation also keeps the chat sent; genuine sending failures
+retain their existing retry behavior.
+
+See [delivery lifecycle](docs/views.md#delivery-lifecycle) for finalization, automatic deletion and state callbacks.
 
 Inject `IBotBroadcaster` anywhere (a background job, an admin action, an endpoint) to message many chats:
 

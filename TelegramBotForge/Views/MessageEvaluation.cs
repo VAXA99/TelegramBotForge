@@ -60,6 +60,7 @@ internal static class MessageEvaluation
             ReplyContent reply => Reply(reply),
             RemoveKeyboardContent => Remove(),
             RequestContent request => Request(request),
+            RequestUsersContent request => RequestUsers(request),
             _ => throw Problem($"unsupported content {part.GetType().Name}.")
         }).Where(part => part.Length != 0));
 
@@ -89,6 +90,11 @@ internal static class MessageEvaluation
                 keyboard.RequestLocation(request.Label);
             else
                 keyboard.RequestContact(request.Label);
+            return "";
+        }
+        string RequestUsers(RequestUsersContent request)
+        {
+            keyboard.RequestUsers(request.Label, request.Request);
             return "";
         }
         InvalidOperationException Problem(string problem) => new($"View {description.Origin}: {problem}");

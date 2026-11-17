@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotForge.Media;
 using TelegramBotForge.Results;
 
@@ -16,20 +17,25 @@ public sealed class Message
     internal Content[] Content { get; }
     internal Action<PaginationOptions> ConfigurePagination { get; }
     internal Func<MessageDelivery, CancellationToken, Task>? Delivered { get; }
+    internal Func<CancellationToken, Task>? Finished { get; }
+    internal TimeSpan? Lifetime { get; }
     private object Lineage { get; }
 
     internal Message(string origin, bool rich, Action<PaginationOptions> configurePagination,
-        Content[]? content = null, Func<MessageDelivery, CancellationToken, Task>? delivered = null, object? lineage = null)
+        Content[]? content = null, Func<MessageDelivery, CancellationToken, Task>? delivered = null, object? lineage = null,
+        Func<CancellationToken, Task>? finished = null, TimeSpan? lifetime = null)
     {
         Origin = origin;
         Rich = rich;
         ConfigurePagination = configurePagination;
         Content = content ?? [];
         Delivered = delivered;
+        Finished = finished;
+        Lifetime = lifetime;
         Lineage = lineage ?? new object();
     }
 
-    private Message Append(Content content) => new(Origin, Rich, ConfigurePagination, [.. Content, content], Delivered, Lineage);
+    private Message Append(Content content) => new(Origin, Rich, ConfigurePagination, [.. Content, content], Delivered, Lineage, Finished, Lifetime);
     public Message Heading(Text content) => Append(new InlineContent(content, true));
     public Message Paragraph(Text content) => Append(new InlineContent(content, false));
     public Message Link(Text label, string url) => Paragraph(Text.Link(label, url));
@@ -73,6 +79,11 @@ public sealed class Message
     public Message RemoveKeyboard() => Append(new RemoveKeyboardContent());
     public Message RequestContact(string label) => Append(new RequestContent(label, false));
     public Message RequestLocation(string label) => Append(new RequestContent(label, true));
+    public Message RequestUsers(string label, KeyboardButtonRequestUsers request)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(label);
+        return Append(new RequestUsersContent(label, MessageBuilder.SnapshotRequestUsers(request)));
+    }
     public Message Table(Func<MessageTable, MessageTable> table) => Append(new TableContent(table(new MessageTable()).Rows));
     public Message Details(Text summary, Func<Message, Message> body) => Append(new DetailsContent(summary, ComponentBody(body)));
     public Message Component(Func<Message, Message> component) => Append(new ComponentContent(ComponentBody(component)));
@@ -83,7 +94,7 @@ public sealed class Message
         var result = component(seed) ?? throw new InvalidOperationException($"View {Origin}: component returned null.");
         if (result.Lineage != seed.Lineage)
             throw new InvalidOperationException($"View {Origin}: components must append to their supplied message.");
-        if (result.Delivered is not null)
+        if (result.Delivered is not null || result.Finished is not null || result.Lifetime is not null)
             throw new InvalidOperationException($"View {Origin}: attach delivery callbacks to the root message, not a component.");
         return result.Content;
     }
@@ -93,7 +104,32 @@ public sealed class Message
         : throw new ArgumentException($"View {Origin}: Video requires video media.", nameof(video));
     public Message Slideshow(IEnumerable<MediaFile> media) => Append(new MediaContent(media.ToArray()));
     public Message OnDelivered(Func<MessageDelivery, CancellationToken, Task> callback) =>
-        new(Origin, Rich, ConfigurePagination, Content, callback ?? throw new ArgumentNullException(nameof(callback)), Lineage);
+        new(Origin, Rich, ConfigurePagination, Content, callback ?? throw new ArgumentNullException(nameof(callback)), Lineage, Finished, Lifetime);
+
+    public Message Finally(Func<CancellationToken, Task> callback)
+    {
+        ArgumentNullException.ThrowIfNull(callback);
+        return new(Origin, Rich, ConfigurePagination, Content, Delivered, Lineage,
+            Finished is { } previous ? token => ResultLifecycleExtensions.FinishAsync(() => previous(token), callback) : callback, Lifetime);
+    }
+
+    public Message Finally(Action callback)
+    {
+        ArgumentNullException.ThrowIfNull(callback);
+        return Finally(_ => { callback(); return Task.CompletedTask; });
+    }
+
+    public Message Finally(Func<Task> callback)
+    {
+        ArgumentNullException.ThrowIfNull(callback);
+        return Finally(_ => callback());
+    }
+
+    public Message DeleteAfter(TimeSpan delay)
+    {
+        ResultLifecycleExtensions.ValidateDelay(delay);
+        return new(Origin, Rich, ConfigurePagination, Content, Delivered, Lineage, Finished, delay);
+    }
 }
 
 /// <summary>Immutable typed table rows and cells.</summary>
@@ -118,3 +154,4 @@ internal sealed record MediaContent(MediaFile[] Media) : Content;
 internal sealed record ReplyContent(string[] Labels, int PerRow) : Content;
 internal sealed record RemoveKeyboardContent : Content;
 internal sealed record RequestContent(string Label, bool Location) : Content;
+internal sealed record RequestUsersContent(string Label, KeyboardButtonRequestUsers Request) : Content;

@@ -11,6 +11,20 @@ namespace TelegramBotForge.Results;
 
 internal sealed partial class TelegramResultExecutor
 {
+    private static Task ExecuteDeliveryAsync(BotContext context, DeliverMessage result, CancellationToken ct)
+    {
+        Func<Task> execute = () => DeliverAsync(context, result, ct);
+        if (result.Content.Lifetime is { } delay)
+        {
+            var deliver = execute;
+            execute = () => ResultLifecycleExtensions.ExpireAsync(context, delay, deliver);
+        }
+        var send = execute;
+        return ResultLifecycleExtensions.WithDeliveryAsync(context, () => result.Content.Finished is { } finished
+            ? ResultLifecycleExtensions.FinishAsync(send, finished, context)
+            : send());
+    }
+
     private static async Task DeliverAsync(BotContext context, DeliverMessage result, CancellationToken ct)
     {
         var payload = MessageEvaluation.Evaluate(result.Content);
@@ -28,6 +42,8 @@ internal sealed partial class TelegramResultExecutor
         var opened = new List<OpenedFile>();
         var newlySent = new List<int>();
         var committed = false;
+        MessageDelivery? receipt = null;
+        Exception? failure = null;
         try
         {
             InputRichMessage? rich = null;
@@ -84,9 +100,10 @@ internal sealed partial class TelegramResultExecutor
                 primaryId = sent.Id;
                 newlySent.Add(sent.Id);
             }
-            var receipt = new MessageDelivery(chatId, primaryId!.Value, associated, payload.Message.Rich) { Media = payload.Attachments };
+            receipt = new MessageDelivery(chatId, primaryId!.Value, associated, payload.Message.Rich) { Media = payload.Attachments };
             context.DeliveredMessages.Add(receipt);
             committed = true;
+            context.DeliveryCommitted?.Invoke(receipt);
             var cleanup = previous is not null && !reuseMedia ? previous.AssociatedMessageIds.ToList() : new List<int>();
             if (replace && target is { } oldPrimary)
                 cleanup.Add(oldPrimary);
@@ -102,10 +119,11 @@ internal sealed partial class TelegramResultExecutor
                 catch (Exception exception) { failures.Add(exception); }
             }
             if (failures.Count != 0)
-                throw new AggregateException($"View {result.Content.Origin}: output was delivered, but cleanup or the delivery callback failed. Receipts contain the actual output IDs.", failures);
+                throw new MessageDeliveryException(receipt, failures);
         }
         catch (Exception exception)
         {
+            failure = exception;
             exception.Data["TelegramBotForge.View"] = result.Content.Origin;
             if (!committed)
                 foreach (var messageId in newlySent)
@@ -117,15 +135,25 @@ internal sealed partial class TelegramResultExecutor
         }
         finally
         {
+            var disposalErrors = new List<Exception>();
             foreach (var file in opened)
-                await file.DisposeAsync();
+            {
+                try { await file.DisposeAsync(); }
+                catch (Exception exception) { disposalErrors.Add(exception); }
+            }
+            if (disposalErrors.Count != 0)
+            {
+                if (failure is not null)
+                    disposalErrors.Insert(0, failure);
+                if (committed)
+                    throw new MessageDeliveryException(receipt!, disposalErrors);
+                throw new AggregateException("Delivery resource cleanup failed.", disposalErrors);
+            }
         }
     }
 
     private static async Task DeleteOutputAsync(BotContext context, long chatId, int messageId, CancellationToken ct)
     {
-        try { await context.Bot.DeleteMessage(chatId, messageId, cancellationToken: ct); }
-        catch (ApiRequestException exception) when (exception.ErrorCode == 400 &&
-            exception.Message.Contains("message to delete not found", StringComparison.OrdinalIgnoreCase)) { }
+        await MessageDeletionScheduler.DeleteAsync(context.Bot, chatId, messageId, ct);
     }
 }

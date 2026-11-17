@@ -179,6 +179,29 @@ Standard raw markup must be Telegram standard HTML. Rich tables/details cannot a
 write structured content when a fallback is needed. Unknown tags, invalid nesting and unregistered `tg://` media
 references fail descriptively. Raw HTML is trusted input, not a sanitizer or an unrestricted browser HTML surface.
 
+## User selection
+
+Structured messages support Telegram's user-selection reply button without falling back to `SendText`:
+
+```csharp
+return Reply(contacts.Select().RequestUsers("Select users", new KeyboardButtonRequestUsers(17)
+{
+    MaxQuantity = 10,
+    UserIsBot = false,
+    UserIsPremium = null,
+    RequestName = true,
+    RequestUsername = true,
+    RequestPhoto = true
+}));
+```
+
+Import `Telegram.Bot.Types.ReplyMarkups` for `KeyboardButtonRequestUsers`. All request fields are preserved, including
+`false`/unspecified filters. Options are copied when declaring the message and again when evaluated, so mutating the
+input or a previously rendered keyboard cannot change a reusable message. `MaxQuantity`, when supplied, must be 1-10;
+request IDs must be unique within the keyboard. Each call appends one reply-keyboard row, compatible with the existing
+contact, location and reply buttons. User selection is available in private chats; rich messages and edits cannot use
+reply keyboards. Legacy `MessageBuilder.RequestUsers(text, request)` supports the same fields and validation.
+
 ## Reuse, receipts and edits
 
 Descriptions, inline content, buttons and tables are immutable. Fluent operations copy input collections. Component
@@ -208,6 +231,78 @@ or explicitly uneditable target produces a replacement and cleanup. Other 400 er
 mode retry. New media is rolled back when a primary operation fails. Successful receipts are recorded before cleanup and
 notification callbacks, so recovery code can inspect actual output if either fails. Telegram operations are not atomic:
 cleanup/network failures propagate, and the receipt IDs remain available for application recovery.
+
+After a confirmed delivery, callback, finalizer and cleanup errors use `MessageDeliveryException`. Its `Delivery`
+contains the actual receipt, and its inherited `InnerExceptions` preserve the errors (`Flatten()` includes nested
+execution/finalization errors). `IBotMessageSender` exposes the same exception, including when cancellation occurs
+after confirmation. Recover application bookkeeping using that receipt; do not repeat the send. Failures before
+confirmation retain their original exceptions and partial-output cleanup behavior.
+
+## Delivery lifecycle
+
+`IBotResult.OnDelivered((receipt, ct) => ...)` observes actual receipts for all message results, including `SendText`
+with arbitrary `ReplyMarkup`, media, invoices, edits and replacement sends:
+
+```csharp
+return new SendText("Choose users", keyboard)
+    .OnDelivered((receipt, ct) => tracker.SaveAsync(receipt, ct))
+    .Finally(() => gate.Release());
+```
+
+For `MultiResult`, the callback runs once per confirmed receipt, in result order, before the next item executes.
+A structured message with associated media produces one receipt containing all IDs. An unchanged edit confirms the
+existing ID; a fallback send reports the replacement ID. Empty results, deletions and failed/rolled-back sends emit no
+delivery callback. Receipts from previous executions of the context are not replayed. A later send failure leaves
+earlier notifications intact and retains its original sending exception.
+
+Result observers run after the individual message result's execution and its message-level callbacks/finalizers, even
+if that execution reported post-delivery errors. Multiple observers run in declaration order and are all attempted for
+the confirmed receipt. Observer failures use `MessageDeliveryException`, retain earlier errors and stop the sequence
+before the next result. Enclosing result `Finally` callbacks run after the delivery observers regardless of fluent-call
+order. Observers receive the delivery cancellation token; finalizers continue to receive an independent token.
+
+`Finally` runs after a result has been attempted, including validation/API errors, callback errors and cancellation.
+It receives `CancellationToken.None` so shutdown cancellation cannot skip releasing an application lock:
+
+```csharp
+return Reply(profile.Profile(model)
+    .OnDelivered((receipt, ct) => tracker.SaveAsync(receipt, ct)))
+    .DeleteAfter(TimeSpan.FromMinutes(5))
+    .Finally(() => gate.Release());
+```
+
+Both `IBotResult` and `Message` offer `Finally(Action)`, `Finally(Func<Task>)` and
+`Finally(Func<CancellationToken, Task>)`. A finalizer attached to a `MultiResult` covers the whole sequence,
+including a failure in an earlier item. A result never reached is not executed or finalized. Repeated finalizers all
+run; finalizer errors propagate, and an execution error plus a finalizer error are preserved in an `AggregateException`
+(`MessageDeliveryException` derives from it for confirmed deliveries). A later send failure in a sequence is still a
+send failure even if an earlier item was delivered; `BotContext.Deliveries` retains those earlier receipts.
+
+`DeleteAfter(TimeSpan)` is available on `IBotResult` and `Message`, including background sends and broadcasts.
+Deletion is scheduled as soon as an actual receipt exists, before cleanup and `OnDelivered`, so callback failure or
+cancellation does not prevent expiry. It deletes the primary and every associated media ID, independently attempting
+each deletion. Missing messages are ignored; other deletion errors are logged without retry. No output means no timer.
+For a wrapped sequence, all delivered items expire; an inner message's explicit delay overrides the outer delay.
+The delay accepts zero through 4294967294 milliseconds. Scheduling uses the registered `TimeProvider` and a hosted
+in-memory queue: pending deletions are lost on shutdown/restart. Telegram permissions and deletion limits still apply.
+Editing a message does not cancel a previously scheduled deletion of its IDs.
+
+After a successful action, conversation state is saved before result execution as before. Changes made later by
+`OnDelivered` or `Finally` are saved by the update dispatcher after the complete result chain, including finalizers
+added by outer application middleware, before the update scope/conversation lock is released. These later mutations
+are saved even if delivery, cleanup or a callback throws, or delivery is cancelled; partial callback changes are retained.
+Action failures still do not save action changes. Post-delivery storage uses a non-cancelled token; storage failures
+propagate to the dispatcher and are logged, retaining the delivery error as well if both fail. Delivery does not roll
+back action state. Only modified state is saved; clearing it removes the stored record. Background sends have no
+conversation state; their callbacks own any application persistence.
+
+Broadcasts count every confirmed chat exactly once in `Sent`. `BroadcastReport.PostDeliveryErrors` maps chats with
+post-delivery errors (including `BroadcastOptions.OnSent`) to `MessageDeliveryException` with receipts and original
+errors. It is a diagnostic subset of `Sent`, not another progress category. Such chats never enter `Failed`,
+`Unreachable` or `Remaining`, including on cancellation, so resuming from `Remaining` does not duplicate their messages.
+`OnSent` is attempted for a confirmed delivery even if its earlier callback failed; its existing cancellation token
+is preserved and any resulting cancellation error is recorded as a post-delivery error. Sending errors before
+confirmation retain their previous failed/unreachable/cancelled classification and retry behavior.
 
 ## Migration
 
@@ -240,9 +335,10 @@ remain compatibility APIs. `View.Build` becomes virtual with a descriptive defau
 on a new factory-only view. Legacy `Line($"...")` still treats literal segments as HTML and escapes interpolations;
 `RawHtml`, `Raw(...)`, and `Line(Raw(...))` retain their behavior. New message strings always escape their entire value.
 Both paths share button serialization, callback/keyboard checks and the result executor. Built-in system-view override
-hooks and broadcasting continue to use `BotMessage`/`Build` for compatibility.
+hooks continue to use `BotMessage`/`Build` for compatibility; broadcasting supports both message APIs.
 
 Source compatibility considerations: adding `Views.Message` may require a type alias where Telegram's `Message` is also
 imported. `[View]` annotations now inherit mode and lifetime. Editing no longer treats every 400 as permission to send a
 replacement; code relying on that behavior must handle real errors. Existing rendered `BotMessage` values do not gain
-structured gallery metadata or receipts; migrate gallery screens to `Message` instead of mixing attachment side channels.
+structured gallery metadata; legacy result execution now records single-message receipts too. Migrate gallery screens
+to `Message` instead of mixing attachment side channels.

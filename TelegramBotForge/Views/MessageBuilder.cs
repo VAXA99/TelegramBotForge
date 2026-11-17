@@ -292,6 +292,34 @@ public sealed class MessageBuilder
         return this;
     }
 
+    /// <summary>Shows a user-selection button under the input field. Private chats only.</summary>
+    public MessageBuilder RequestUsers(string text, KeyboardButtonRequestUsers request)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
+        var snapshot = SnapshotRequestUsers(request);
+        if (_replyRows.SelectMany(row => row).Any(button => button.RequestUsers?.RequestId == snapshot.RequestId))
+            throw Problem($"user request ID {snapshot.RequestId} is used twice in the same keyboard.");
+        AddReplyRow([KeyboardButton.WithRequestUsers(text, snapshot)]);
+        return this;
+    }
+
+    internal static KeyboardButtonRequestUsers SnapshotRequestUsers(KeyboardButtonRequestUsers request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (request.MaxQuantity is < 1 or > 10)
+            throw new ArgumentOutOfRangeException(nameof(request), "MaxQuantity must be between 1 and 10 when specified.");
+        return new KeyboardButtonRequestUsers
+        {
+            RequestId = request.RequestId,
+            MaxQuantity = request.MaxQuantity,
+            UserIsBot = request.UserIsBot,
+            UserIsPremium = request.UserIsPremium,
+            RequestName = request.RequestName,
+            RequestUsername = request.RequestUsername,
+            RequestPhoto = request.RequestPhoto
+        };
+    }
+
     /// <summary>
     /// Removes the buttons under the input field.
     /// </summary>

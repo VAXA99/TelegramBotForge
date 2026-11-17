@@ -53,6 +53,9 @@ internal static class UpdateDescriber
     public static string DescribeResult(IBotResult? result) => result switch
     {
         null => "no answer",
+        FinishedResult finished => DescribeResult(finished.Inner),
+        DeliveredResult delivered => DescribeResult(delivered.Inner),
+        ExpiringResult expiring => DescribeResult(expiring.Inner),
         MultiResult multi => string.Join(" + ", multi.Results.Select(DescribeResult)),
         _ => result.GetType().Name
     };

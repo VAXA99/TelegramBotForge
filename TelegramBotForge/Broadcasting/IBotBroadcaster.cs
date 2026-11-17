@@ -28,6 +28,11 @@ namespace TelegramBotForge.Broadcasting;
 /// </example>
 public interface IBotBroadcaster
 {
+    Task<BroadcastReport> SendAsync(IEnumerable<long> chatIds, Message message, BroadcastOptions? options = null, CancellationToken ct = default);
+
+    Task<BroadcastReport> SendAsync(IEnumerable<long> chatIds, Func<long, CancellationToken, ValueTask<Message?>> render,
+        BroadcastOptions? options = null, CancellationToken ct = default);
+
     /// <summary>
     /// Sends the same message to every chat.
     /// </summary>
@@ -65,6 +70,7 @@ public sealed class BroadcastOptions
     /// <summary>
     /// Gets or sets a function called after each delivered message, with the chat and the new message id,
     /// for example to record the delivery so a restarted broadcast can skip it.
+    /// Errors are reported in BroadcastReport.PostDeliveryErrors; they do not make a delivered chat retryable.
     /// </summary>
     public Func<long, int, CancellationToken, ValueTask>? OnSent { get; set; }
 
@@ -103,13 +109,15 @@ public sealed class BroadcastReport
 {
     internal BroadcastReport(
         int total, int sent, int skipped, IReadOnlyList<long> unreachable, IReadOnlyDictionary<long, string> failed,
-        IReadOnlyList<long> notStarted, bool cancelled, TimeSpan duration)
+        IReadOnlyList<long> notStarted, bool cancelled, TimeSpan duration,
+        IReadOnlyDictionary<long, Results.MessageDeliveryException> postDeliveryErrors)
     {
         Total = total;
         Sent = sent;
         Skipped = skipped;
         Unreachable = unreachable;
         Failed = failed;
+        PostDeliveryErrors = postDeliveryErrors;
         Cancelled = cancelled;
         Duration = duration;
         Remaining = [.. failed.Keys, .. notStarted];
@@ -140,13 +148,16 @@ public sealed class BroadcastReport
     /// </summary>
     public IReadOnlyDictionary<long, string> Failed { get; }
 
+    /// <summary>Errors after confirmed delivery, including OnSent. These chats count only in Sent, never in Remaining.</summary>
+    public IReadOnlyDictionary<long, Results.MessageDeliveryException> PostDeliveryErrors { get; }
+
     /// <summary>
     /// Gets the chats worth sending to again: the failed ones and, after a cancellation, the ones not reached yet.
     /// </summary>
     public IReadOnlyList<long> Remaining { get; }
 
     /// <summary>
-    /// Gets a value indicating whether the broadcast was cancelled before it reached every chat.
+    /// Gets a value indicating whether cancellation was requested, even if the last chat was already delivered.
     /// </summary>
     public bool Cancelled { get; }
 

@@ -1,4 +1,39 @@
 #nullable enable
+static TelegramBotForge.Results.ResultLifecycleExtensions.OnDelivered(this TelegramBotForge.Results.IBotResult! result, System.Func<TelegramBotForge.Results.MessageDelivery!, System.Threading.CancellationToken, System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Views.Message.RequestUsers(string! label, Telegram.Bot.Types.ReplyMarkups.KeyboardButtonRequestUsers! request) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.MessageBuilder.RequestUsers(string! text, Telegram.Bot.Types.ReplyMarkups.KeyboardButtonRequestUsers! request) -> TelegramBotForge.Views.MessageBuilder!
+TelegramBotForge.Results.MessageDeliveryException
+TelegramBotForge.Results.MessageDeliveryException.MessageDeliveryException(TelegramBotForge.Results.MessageDelivery! delivery, System.Collections.Generic.IEnumerable<System.Exception!>! errors) -> void
+TelegramBotForge.Results.MessageDeliveryException.Delivery.get -> TelegramBotForge.Results.MessageDelivery!
+TelegramBotForge.Broadcasting.BroadcastReport.PostDeliveryErrors.get -> System.Collections.Generic.IReadOnlyDictionary<long, TelegramBotForge.Results.MessageDeliveryException!>!
+TelegramBotForge.DeepLinks.IBotDeepLinks
+TelegramBotForge.DeepLinks.IBotDeepLinks.CreateAsync(string! payload, bool group = false, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+TelegramBotForge.DeepLinks.ShortId
+static TelegramBotForge.DeepLinks.ShortId.Encode(System.Guid value) -> string!
+static TelegramBotForge.DeepLinks.ShortId.Decode(string! value) -> System.Guid
+static TelegramBotForge.DeepLinks.ShortId.TryDecode(string? value, out System.Guid result) -> bool
+TelegramBotForge.Controllers.DeepLinkAttribute
+TelegramBotForge.Controllers.DeepLinkAttribute.DeepLinkAttribute(string! template) -> void
+TelegramBotForge.Controllers.DeepLinkAttribute.Template.get -> string!
+override TelegramBotForge.Controllers.DeepLinkAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.DeepLinkAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.DeepLinkAttribute.ParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>!
+override TelegramBotForge.Controllers.DeepLinkAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+TelegramBotForge.Results.IBotMessageSender
+TelegramBotForge.Results.IBotMessageSender.SendAsync(long chatId, TelegramBotForge.Views.Message! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Results.MessageDelivery!>!
+TelegramBotForge.Results.IBotMessageSender.EditAsync(long chatId, int messageId, TelegramBotForge.Views.Message! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Results.MessageDelivery!>!
+TelegramBotForge.Results.IBotMessageSender.EditAsync(TelegramBotForge.Results.MessageDelivery! previous, TelegramBotForge.Views.Message! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Results.MessageDelivery!>!
+TelegramBotForge.Broadcasting.IBotBroadcaster.SendAsync(System.Collections.Generic.IEnumerable<long>! chatIds, TelegramBotForge.Views.Message! message, TelegramBotForge.Broadcasting.BroadcastOptions? options = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Broadcasting.BroadcastReport!>!
+TelegramBotForge.Broadcasting.IBotBroadcaster.SendAsync(System.Collections.Generic.IEnumerable<long>! chatIds, System.Func<long, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<TelegramBotForge.Views.Message?>>! render, TelegramBotForge.Broadcasting.BroadcastOptions? options = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TelegramBotForge.Broadcasting.BroadcastReport!>!
+TelegramBotForge.Results.ResultLifecycleExtensions
+static TelegramBotForge.Results.ResultLifecycleExtensions.Finally(this TelegramBotForge.Results.IBotResult! result, System.Func<System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Results.ResultLifecycleExtensions.Finally(this TelegramBotForge.Results.IBotResult! result, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Results.ResultLifecycleExtensions.Finally(this TelegramBotForge.Results.IBotResult! result, System.Action! callback) -> TelegramBotForge.Results.IBotResult!
+static TelegramBotForge.Results.ResultLifecycleExtensions.DeleteAfter(this TelegramBotForge.Results.IBotResult! result, System.TimeSpan delay) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Views.Message.Finally(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Finally(System.Action! callback) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.Finally(System.Func<System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Views.Message!
+TelegramBotForge.Views.Message.DeleteAfter(System.TimeSpan delay) -> TelegramBotForge.Views.Message!
 *REMOVED*abstract TelegramBotForge.Views.View.Build(TelegramBotForge.Views.MessageBuilder! message) -> void
 TelegramBotForge.BotContext.Deliveries.get -> System.Collections.Generic.IReadOnlyList<TelegramBotForge.Results.MessageDelivery!>!
 TelegramBotForge.Results.DeliverMessage

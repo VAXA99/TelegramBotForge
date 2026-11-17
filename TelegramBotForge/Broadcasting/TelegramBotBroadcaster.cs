@@ -21,13 +21,25 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
     private readonly ITelegramBotClient _bot;
     private readonly IServiceScopeFactory _scopes;
     private readonly ILogger _logger;
+    private readonly IBotMessageSender _sender;
 
-    public TelegramBotBroadcaster(ITelegramBotClient bot, IServiceScopeFactory scopes, ILoggerFactory loggers)
+    public TelegramBotBroadcaster(ITelegramBotClient bot, IServiceScopeFactory scopes, ILoggerFactory loggers, IBotMessageSender sender)
     {
         _bot = bot;
         _scopes = scopes;
         _logger = loggers.CreateLogger("TelegramBotForge.Broadcast");
+        _sender = sender;
     }
+
+    public Task<BroadcastReport> SendAsync(IEnumerable<long> chatIds, Views.Message message, BroadcastOptions? options = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        return SendAsync(chatIds, (_, _) => ValueTask.FromResult<Views.Message?>(message), options, ct);
+    }
+
+    public Task<BroadcastReport> SendAsync(IEnumerable<long> chatIds, Func<long, CancellationToken, ValueTask<Views.Message?>> render,
+        BroadcastOptions? options = null, CancellationToken ct = default) =>
+        SendCoreAsync(chatIds, render, (chatId, message, token) => _sender.SendAsync(chatId, message, token), options, ct);
 
     public Task<BroadcastReport> SendAsync(IEnumerable<long> chatIds, BotMessage message, BroadcastOptions? options = null, CancellationToken ct = default)
     {
@@ -35,11 +47,15 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
         return SendAsync(chatIds, (_, _) => ValueTask.FromResult<BotMessage?>(message), options, ct);
     }
 
-    public async Task<BroadcastReport> SendAsync(
+    public Task<BroadcastReport> SendAsync(
         IEnumerable<long> chatIds,
         Func<long, CancellationToken, ValueTask<BotMessage?>> render,
         BroadcastOptions? options = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default) => SendCoreAsync(chatIds, render, SendLegacyAsync, options, ct);
+
+    private async Task<BroadcastReport> SendCoreAsync<T>(IEnumerable<long> chatIds,
+        Func<long, CancellationToken, ValueTask<T?>> render, Func<long, T, CancellationToken, Task<MessageDelivery>> send,
+        BroadcastOptions? options, CancellationToken ct) where T : class
     {
         ArgumentNullException.ThrowIfNull(chatIds);
         ArgumentNullException.ThrowIfNull(render);
@@ -51,6 +67,7 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
         var started = Stopwatch.GetTimestamp();
         var unreachable = new ConcurrentBag<long>();
         var failed = new ConcurrentDictionary<long, string>();
+        var postDeliveryErrors = new ConcurrentDictionary<long, MessageDeliveryException>();
         var notStarted = new ConcurrentBag<long>();
         int sent = 0, skipped = 0;
 
@@ -83,8 +100,6 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
             options.Progress.Report(Progress());
         }
 
-        await using var scope = _scopes.CreateAsyncScope();
-        var executor = scope.ServiceProvider.GetRequiredService<IBotResultExecutor>();
         var parallel = new ParallelOptions { MaxDegreeOfParallelism = Math.Clamp(options.MessagesPerSecond, 1, 30) };
 
         // Not cancelled by ct itself, so every chat is accounted for: the ones not started go to Remaining.
@@ -108,11 +123,30 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
                 // Token bucket permits are used up, not given back, so the lease is released at once.
                 (await limiter.AcquireAsync(1, ct)).Dispose();
 
-                var messageId = await SendAsync(executor, scope.ServiceProvider, chatId, message, ct);
+                MessageDelivery delivery;
+                MessageDeliveryException? postDeliveryError = null;
+                try { delivery = await send(chatId, message, ct); }
+                catch (MessageDeliveryException exception)
+                {
+                    delivery = exception.Delivery;
+                    postDeliveryError = exception;
+                }
                 Interlocked.Increment(ref sent);
                 BotTelemetry.BroadcastMessages.Add(1, new KeyValuePair<string, object?>("outcome", "sent"));
                 if (options.OnSent is not null)
-                    await options.OnSent(chatId, messageId, ct);
+                {
+                    try { await options.OnSent(chatId, delivery.PrimaryMessageId, ct); }
+                    catch (Exception exception)
+                    {
+                        postDeliveryError = new MessageDeliveryException(delivery,
+                            postDeliveryError is null ? new[] { exception } : new Exception[] { postDeliveryError, exception });
+                    }
+                }
+                if (postDeliveryError is not null)
+                {
+                    postDeliveryErrors[chatId] = postDeliveryError;
+                    _logger.LogWarning(postDeliveryError, "Broadcast to chat {ChatId} was delivered, but post-delivery processing failed", chatId);
+                }
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
@@ -139,26 +173,32 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
 
         ReportProgress(force: true);
         var report = new BroadcastReport(chats.Count, sent, skipped, unreachable.ToList(), failed, notStarted.ToList(),
-            ct.IsCancellationRequested, Stopwatch.GetElapsedTime(started));
+            ct.IsCancellationRequested, Stopwatch.GetElapsedTime(started), postDeliveryErrors);
 
         _logger.LogInformation(
-            "Broadcast {Status}: {Sent} sent, {Unreachable} unreachable, {Failed} failed, {Skipped} skipped of {Total} in {Seconds:0.0}s",
+            "Broadcast {Status}: {Sent} sent, {Unreachable} unreachable, {Failed} failed, {Skipped} skipped of {Total} in {Seconds:0.0}s; {PostDeliveryErrors} post-delivery errors",
             report.Cancelled ? "cancelled" : "finished", report.Sent, report.Unreachable.Count, report.Failed.Count, report.Skipped,
-            report.Total, report.Duration.TotalSeconds);
+            report.Total, report.Duration.TotalSeconds, report.PostDeliveryErrors.Count);
         return report;
     }
 
     /// <summary>
     /// Sends with the same code as the answers of actions, so text, media, files and buttons work the same way.
     /// </summary>
-    private async Task<int> SendAsync(IBotResultExecutor executor, IServiceProvider services, long chatId, BotMessage message, CancellationToken ct)
+    private async Task<MessageDelivery> SendLegacyAsync(long chatId, BotMessage message, CancellationToken ct)
     {
+        var scope = _scopes.CreateAsyncScope();
+        var services = scope.ServiceProvider;
         var sentId = 0;
         var update = new Update { Message = new Message { Chat = new Chat { Id = chatId, Type = chatId > 0 ? Telegram.Bot.Types.Enums.ChatType.Private : Telegram.Bot.Types.Enums.ChatType.Supergroup } } };
         var bot = new CapturingBotClient(_bot, id => sentId = id);
         var context = new BotContext(update, bot, services, ct);
-        await executor.ExecuteAsync(context, ViewResults.From(message), ct);
-        return sentId;
+        await ResultLifecycleExtensions.WithDeliveryAsync(context, () => ResultLifecycleExtensions.FinishAsync(async () =>
+        {
+            var executor = services.GetRequiredService<IBotResultExecutor>();
+            await ResultLifecycleExtensions.ExecuteAsync(context, ViewResults.From(message), executor.ExecuteAsync, ct);
+        }, _ => scope.DisposeAsync().AsTask(), context));
+        return context.Deliveries.LastOrDefault() ?? new MessageDelivery(chatId, sentId, [], message.Rich);
     }
 
     /// <summary>

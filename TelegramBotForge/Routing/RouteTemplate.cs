@@ -16,11 +16,12 @@ internal sealed class RouteTemplate
 
     private readonly Regex _regex;
 
-    public RouteTemplate(string template)
+    public RouteTemplate(string template, bool deepLink = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(template);
         Template = template;
 
+        var kind = deepLink ? "deep-link" : "callback";
         var names = new List<string>();
         var pattern = new StringBuilder("^");
         var literal = new StringBuilder();
@@ -34,10 +35,10 @@ internal sealed class RouteTemplate
 
             var name = match.Groups["name"].Value;
             if (names.Contains(name, StringComparer.OrdinalIgnoreCase))
-                throw new ArgumentException($"The callback template \"{template}\" uses {{{name}}} twice.");
+                throw new ArgumentException($"The {kind} template \"{template}\" uses {{{name}}} twice.");
 
             var constraint = match.Groups["constraint"].Success ? match.Groups["constraint"].Value : null;
-            pattern.Append("(?<").Append(name).Append('>').Append(PatternFor(constraint, template)).Append(')');
+            pattern.Append("(?<").Append(name).Append('>').Append(PatternFor(constraint, template, kind)).Append(')');
             names.Add(name);
             last = match.Index + match.Length;
         }
@@ -48,9 +49,11 @@ internal sealed class RouteTemplate
 
         var fixedText = literal.ToString();
         if (fixedText.Contains('{') || fixedText.Contains('}'))
-            throw new ArgumentException($"The callback template \"{template}\" has a malformed {{placeholder}}.");
+            throw new ArgumentException($"The {kind} template \"{template}\" has a malformed {{placeholder}}.");
+        if (deepLink && (fixedText.Any(character => !DeepLinks.DeepLinkPayload.IsCharacter(character)) || fixedText.Length + names.Count > 64))
+            throw new ArgumentException($"The deep-link template \"{template}\" must fit 1-64 characters using A-Z, a-z, 0-9, _ or -.");
         if (Encoding.UTF8.GetByteCount(fixedText) > MaxCallbackDataBytes)
-            throw new ArgumentException($"The callback template \"{template}\" is longer than Telegram's {MaxCallbackDataBytes}-byte limit.");
+            throw new ArgumentException($"The {kind} template \"{template}\" is longer than Telegram's {MaxCallbackDataBytes}-byte limit.");
 
         _regex = new Regex(pattern.ToString(), RegexOptions.Compiled | RegexOptions.CultureInvariant);
         ParameterNames = names;
@@ -71,11 +74,11 @@ internal sealed class RouteTemplate
         return true;
     }
 
-    private static string PatternFor(string? constraint, string template) => constraint?.ToLowerInvariant() switch
+    private static string PatternFor(string? constraint, string template, string kind) => constraint?.ToLowerInvariant() switch
     {
         null => "[^:]+",
         "int" or "long" => "-?[0-9]+",
         _ => throw new ArgumentException(
-            $"Unknown constraint :{constraint} in the callback template \"{template}\". Supported: int, long.")
+            $"Unknown constraint :{constraint} in the {kind} template \"{template}\". Supported: int, long.")
     };
 }

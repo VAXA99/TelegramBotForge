@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using TelegramBotForge.Logging;
+using TelegramBotForge.Localization;
 using TelegramBotForge.Middleware;
 using TelegramBotForge.Results;
 using TelegramBotForge.Telemetry;
@@ -61,6 +62,7 @@ internal sealed class UpdateDispatcher
     private async Task<bool> DispatchCoreAsync(Update update, bool callbackAnswered, IReadOnlyList<Message>? album, CancellationToken ct)
     {
         var ok = true;
+        using var cultureScope = new BotCultureScope(null, false);
         await using var scope = _scopes.CreateAsyncScope();
         var context = new BotContext(update, _bot, scope.ServiceProvider, ct) {
             CallbackAnswered = callbackAnswered,
@@ -69,43 +71,51 @@ internal sealed class UpdateDispatcher
         };
         using var logScope = _logger.BeginScope(new UpdateLogScope(context.ChatId ?? 0, context.UserId ?? 0));
 
-        IBotResult? result;
+        IBotResult? result = null;
+        Exception? pipelineFailure = null;
         try
         {
             result = await _pipeline.InvokeAsync(context, ct);
         }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
-        {
-            return true;
-        }
         catch (Exception ex)
         {
-            // Only reached when ErrorMiddleware was removed or rethrows.
-            _logger.LogError(ex, "Update {UpdateId} failed", update.Id);
-            result = null;
-            ok = false;
+            pipelineFailure = ex;
         }
 
+        cultureScope.Apply(context.Culture, context.SetCurrentCulture);
         try
         {
-            if (result is not null)
+            await ResultLifecycleExtensions.FinishAsync(async () =>
             {
-                var executor = scope.ServiceProvider.GetRequiredService<IBotResultExecutor>();
-                await executor.ExecuteAsync(context, result, ct);
-            }
+                if (pipelineFailure is not null)
+                    System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(pipelineFailure).Throw();
+                if (result is not null)
+                {
+                    var executor = scope.ServiceProvider.GetRequiredService<IBotResultExecutor>();
+                    await ResultLifecycleExtensions.ExecuteAsync(context, result, executor.ExecuteAsync, ct);
+                }
+            }, token => context.SaveStateAfterResult?.Invoke(token) ?? Task.CompletedTask, context);
+        }
+        catch (MessageDeliveryException ex)
+        {
+            _logger.LogError(ex, "The answer to update {UpdateId} was delivered, but post-delivery processing failed", update.Id);
+            ok = false;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
             return true;
         }
-        catch (ApiRequestException ex) when (ex.ErrorCode == 403)
+        catch (ApiRequestException ex) when (pipelineFailure is null && ex.ErrorCode == 403)
         {
             _logger.LogWarning("Telegram refused the answer to update {UpdateId}: {Reason}", update.Id, ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Could not send the answer ({Result}) to update {UpdateId}",
-                UpdateDescriber.DescribeResult(result), update.Id);
+            if (pipelineFailure is not null)
+                _logger.LogError(ex, "Update {UpdateId} failed", update.Id);
+            else
+                _logger.LogError(ex, "Could not send the answer ({Result}) to update {UpdateId}",
+                    UpdateDescriber.DescribeResult(result), update.Id);
             ok = false;
         }
 

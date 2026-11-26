@@ -22,6 +22,7 @@ public enum MediaType
 /// </summary>
 /// <remarks>
 /// An album arrives as one update per item; items of the same album share <see cref="MediaGroupId"/>.
+/// SourceMessageId participates in record equality and is preserved by with expressions. It is unique only within the source chat.
 /// </remarks>
 /// <param name="Type">What kind of media it is.</param>
 /// <param name="FileId">The id to download the file or to send it again.</param>
@@ -47,6 +48,9 @@ public sealed record BotMedia(
     string? Caption,
     string? MediaGroupId)
 {
+    /// <summary>The actual source message ID in the update's chat, or null for manually created media without a source.</summary>
+    public int? SourceMessageId { get; init; }
+
     /// <summary>
     /// Reads the media of a message, or returns <c>null</c> when it has none.
     /// For a photo, Telegram sends several sizes; the largest one is used.
@@ -63,50 +67,50 @@ public sealed record BotMedia(
         {
             var photo = sizes.MaxBy(size => (long)size.Width * size.Height)!;
             return new BotMedia(MediaType.Photo, photo.FileId, photo.FileUniqueId, photo.FileSize,
-                photo.Width, photo.Height, null, null, null, caption, album);
+                photo.Width, photo.Height, null, null, null, caption, album) { SourceMessageId = message.Id };
         }
 
         // An animation message also has a Document, so the animation is checked first.
         if (message.Animation is { } animation)
         {
             return new BotMedia(MediaType.Animation, animation.FileId, animation.FileUniqueId, animation.FileSize,
-                animation.Width, animation.Height, animation.Duration, animation.MimeType, animation.FileName, caption, album);
+                animation.Width, animation.Height, animation.Duration, animation.MimeType, animation.FileName, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.Video is { } video)
         {
             return new BotMedia(MediaType.Video, video.FileId, video.FileUniqueId, video.FileSize,
-                video.Width, video.Height, video.Duration, video.MimeType, video.FileName, caption, album);
+                video.Width, video.Height, video.Duration, video.MimeType, video.FileName, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.Document is { } document)
         {
             return new BotMedia(MediaType.Document, document.FileId, document.FileUniqueId, document.FileSize,
-                null, null, null, document.MimeType, document.FileName, caption, album);
+                null, null, null, document.MimeType, document.FileName, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.Audio is { } audio)
         {
             return new BotMedia(MediaType.Audio, audio.FileId, audio.FileUniqueId, audio.FileSize,
-                null, null, audio.Duration, audio.MimeType, audio.FileName, caption, album);
+                null, null, audio.Duration, audio.MimeType, audio.FileName, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.Voice is { } voice)
         {
             return new BotMedia(MediaType.Voice, voice.FileId, voice.FileUniqueId, voice.FileSize,
-                null, null, voice.Duration, voice.MimeType, null, caption, album);
+                null, null, voice.Duration, voice.MimeType, null, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.VideoNote is { } note)
         {
             return new BotMedia(MediaType.VideoNote, note.FileId, note.FileUniqueId, note.FileSize,
-                note.Length, note.Length, note.Duration, null, null, caption, album);
+                note.Length, note.Length, note.Duration, null, null, caption, album) { SourceMessageId = message.Id };
         }
 
         if (message.Sticker is { } sticker)
         {
             return new BotMedia(MediaType.Sticker, sticker.FileId, sticker.FileUniqueId, sticker.FileSize,
-                sticker.Width, sticker.Height, null, null, null, caption, album);
+                sticker.Width, sticker.Height, null, null, null, caption, album) { SourceMessageId = message.Id };
         }
 
         return null;

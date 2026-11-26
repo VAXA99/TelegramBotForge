@@ -65,6 +65,10 @@ public static class DependencyInjection
         services.TryAddSingleton<ITelegramBotClient>(CreateClient);
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<BotIdentity>();
+        services.TryAddScoped<BotContextScope>();
+        services.TryAddScoped<BotContext>(provider => provider.GetRequiredService<BotContextScope>().Required);
+        services.TryAddScoped<Input.TemporaryInput>();
+        services.TryAddScoped<Input.ITemporaryInput>(provider => provider.GetRequiredService<Input.TemporaryInput>());
         services.TryAddSingleton<IStateStorage, InMemoryStateStorage>();
         services.TryAddSingleton<IBotResultExecutor, TelegramResultExecutor>();
         services.TryAddSingleton<IBotMessageSender, TelegramBotMessageSender>();

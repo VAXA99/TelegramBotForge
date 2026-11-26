@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace TelegramBotForge.Views;
 
 /// <summary>
-/// Convenience base for automatically injected message factories. Public screen methods return <see cref="Message"/>.
+/// Convenience base for automatically injected message factories. Screens return Message, Task&lt;Message&gt; or ValueTask&lt;Message&gt;.
 /// </summary>
 /// <example>
 /// <code>

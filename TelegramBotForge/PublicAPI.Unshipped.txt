@@ -1,4 +1,40 @@
 #nullable enable
+static TelegramBotForge.Payments.StarsBuilderExtensions.UseStarsProducts<TProducts>(this TelegramBotForge.TelegramBotBuilder! builder, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime) -> TelegramBotForge.TelegramBotBuilder!
+TelegramBotForge.Media.BotMedia.SourceMessageId.get -> int?
+TelegramBotForge.Media.BotMedia.SourceMessageId.init -> void
+TelegramBotForge.BotContext.UsersShared.get -> Telegram.Bot.Types.UsersShared?
+TelegramBotForge.Controllers.UsersSharedAttribute
+TelegramBotForge.Controllers.UsersSharedAttribute.UsersSharedAttribute() -> void
+override TelegramBotForge.Controllers.UsersSharedAttribute.Priority.get -> int
+override TelegramBotForge.Controllers.UsersSharedAttribute.Key.get -> string!
+override TelegramBotForge.Controllers.UsersSharedAttribute.TryMatch(TelegramBotForge.BotContext! context, System.Collections.Generic.IDictionary<string!, string!>! values) -> bool
+TelegramBotForge.Input.TemporaryInputKind
+TelegramBotForge.Input.TemporaryInputKind.Users = 0 -> TelegramBotForge.Input.TemporaryInputKind
+TelegramBotForge.Input.TemporaryInputKind.Location = 1 -> TelegramBotForge.Input.TemporaryInputKind
+TelegramBotForge.Input.TemporaryInputCommandPolicy
+TelegramBotForge.Input.TemporaryInputCommandPolicy.Preserve = 0 -> TelegramBotForge.Input.TemporaryInputCommandPolicy
+TelegramBotForge.Input.TemporaryInputCommandPolicy.Cancel = 1 -> TelegramBotForge.Input.TemporaryInputCommandPolicy
+TelegramBotForge.Input.TemporaryInputOptions
+TelegramBotForge.Input.TemporaryInputOptions.TemporaryInputOptions(System.TimeSpan lifetime, string! cleanupText, TelegramBotForge.Input.TemporaryInputCommandPolicy commands = TelegramBotForge.Input.TemporaryInputCommandPolicy.Preserve) -> void
+TelegramBotForge.Input.TemporaryInputOptions.Lifetime.get -> System.TimeSpan
+TelegramBotForge.Input.TemporaryInputOptions.CleanupText.get -> string!
+TelegramBotForge.Input.TemporaryInputOptions.Commands.get -> TelegramBotForge.Input.TemporaryInputCommandPolicy
+TelegramBotForge.Input.TemporaryInputRequest
+TelegramBotForge.Input.TemporaryInputRequest.Id.get -> System.Guid
+TelegramBotForge.Input.TemporaryInputRequest.ChatId.get -> long
+TelegramBotForge.Input.TemporaryInputRequest.UserId.get -> long
+TelegramBotForge.Input.TemporaryInputRequest.State.get -> string!
+TelegramBotForge.Input.TemporaryInputRequest.PreviousState.get -> string?
+TelegramBotForge.Input.TemporaryInputRequest.Kind.get -> TelegramBotForge.Input.TemporaryInputKind
+TelegramBotForge.Input.TemporaryInputRequest.RequestId.get -> int?
+TelegramBotForge.Input.TemporaryInputRequest.ExpiresAt.get -> System.DateTimeOffset
+TelegramBotForge.Input.TemporaryInputRequest.Prompt.get -> TelegramBotForge.Results.MessageDelivery?
+TelegramBotForge.Input.ITemporaryInput
+TelegramBotForge.Input.ITemporaryInput.Current.get -> TelegramBotForge.Input.TemporaryInputRequest?
+TelegramBotForge.Input.ITemporaryInput.Begin(object! state, TelegramBotForge.Input.TemporaryInputKind kind, System.Func<TelegramBotForge.Input.TemporaryInputRequest!, TelegramBotForge.Views.Message!>! prompt, TelegramBotForge.Input.TemporaryInputOptions! options) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Input.ITemporaryInput.TryMatch(out TelegramBotForge.Input.TemporaryInputRequest? request) -> bool
+TelegramBotForge.Input.ITemporaryInput.Complete(System.Guid requestId, string! text) -> TelegramBotForge.Results.IBotResult!
+TelegramBotForge.Input.ITemporaryInput.Cancel(System.Guid requestId, string! text) -> TelegramBotForge.Results.IBotResult!
 static TelegramBotForge.Results.ResultLifecycleExtensions.OnDelivered(this TelegramBotForge.Results.IBotResult! result, System.Func<TelegramBotForge.Results.MessageDelivery!, System.Threading.CancellationToken, System.Threading.Tasks.Task!>! callback) -> TelegramBotForge.Results.IBotResult!
 TelegramBotForge.Views.Message.RequestUsers(string! label, Telegram.Bot.Types.ReplyMarkups.KeyboardButtonRequestUsers! request) -> TelegramBotForge.Views.Message!
 TelegramBotForge.Views.MessageBuilder.RequestUsers(string! text, Telegram.Bot.Types.ReplyMarkups.KeyboardButtonRequestUsers! request) -> TelegramBotForge.Views.MessageBuilder!

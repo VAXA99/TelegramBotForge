@@ -64,6 +64,9 @@ public sealed class HelloController : BotController
 
 ## How it works
 
+See [async annotated screens](docs/views.md#asynchronous-screens) and
+[scoped context / temporary input](docs/temporary-input.md) for receipt-tracked input and typed users selection.
+
 ```
 Update → queue (per chat) → middleware → router → action (in a controller) → services + views → result → Telegram
 ```
@@ -86,6 +89,7 @@ Update → queue (per chat) → middleware → router → action (in a controlle
 | `[Album]` | Several photos or videos sent together, once, bound to `IReadOnlyList<BotMedia>` |
 | `[Location]` | A shared location, bound to `Location` (and `Venue`) |
 | `[Contact]`, `[Contact(OwnOnly = true)]` | A shared contact, bound to `Contact`; `OwnOnly` for the user's own number |
+| `[UsersShared]` | A users-selection response, bound to the original `UsersShared`, including `RequestId` |
 | `[EditedText]`, `[Edited]` | A message the user edited, bound to `string text` and `Message` |
 | `[InlineQuery]` | `@YourBot something` typed in any chat, bound to `string query`; answer with `AnswerInline(...)` |
 | `[BotBlocked]`, `[BotUnblocked]` | A user stopped or restarted the bot, bound to `ChatMemberUpdated` |
@@ -213,6 +217,10 @@ arrive less than `AlbumWaitMilliseconds` apart (500 by default), and the message
 public IBotResult Album(IReadOnlyList<BotMedia> items) =>
     Reply($"Got {items.Count} files. Caption: {items.FirstOrDefault(i => i.Caption is not null)?.Caption ?? "none"}");
 ```
+
+Each item carries `SourceMessageId` from its own Telegram message, even after filtering or reordering the collection.
+Use it with the source chat when deleting accepted items; see the [album deletion example](docs/stars-and-media.md#media-source-ids).
+Manual `BotMedia` construction leaves it null. The property participates in record equality and is preserved by `with`.
 
 Without an `[Album]` action, nothing changes: `[Media]` actions get each item separately. With one, an album that no
 `[Album]` action takes (for example because of `[State]`) reaches `[Media]` as its first item only.
@@ -381,6 +389,11 @@ public IBotResult OnPremium(StarsPayment payment) => Reply("⭐ Premium is activ
 ```
 
 The library checks every order before Telegram's 10-second deadline, ignores repeated payment notices, answers `/paysupport` and refunds with `Refund(chargeId)`. Load products from a database with `UseStarsProducts<T>()`.
+
+For a provider with scoped dependencies, use `.UseStarsProducts<DatabaseStarsProducts>(ServiceLifetime.Scoped)`.
+The existing no-argument registration stays singleton; transient registration is also supported, with one instance per
+resolution. Invoice creation, checkout and payment handling use their operation's DI scope, with no price cache.
+See [scoped Stars providers and media sources](docs/stars-and-media.md) for registration and album examples.
 
 Repeated payment notices are recognized by their charge id, kept in memory for 30 days by default. In production, and
 always with more than one instance, store them in your database: implement `IProcessedPayments` and register it with

@@ -40,7 +40,7 @@ public static class StarsBuilderExtensions
             builder.Services.TryAddSingleton<IStarsProducts>(provider => provider.GetRequiredService<StarsCatalog>());
             builder.Services.TryAddSingleton<IProcessedPayments, InMemoryProcessedPayments>();
             builder.Services.TryAddSingleton<IStarsPayments, TelegramStarsPayments>();
-            builder.Services.TryAddSingleton<StarsMiddleware>();
+            builder.Services.TryAddScoped<StarsMiddleware>();
             builder.BuiltInControllers.Add(typeof(PaySupportController));
             builder.StartupChecks.Add((provider, registry) => CheckStars(builder, provider, registry));
         }
@@ -54,9 +54,18 @@ public static class StarsBuilderExtensions
     /// so a price change between the invoice and the payment declines the order.
     /// </summary>
     public static TelegramBotBuilder UseStarsProducts<TProducts>(this TelegramBotBuilder builder) where TProducts : class, IStarsProducts
+        => builder.UseStarsProducts<TProducts>(ServiceLifetime.Singleton);
+
+    /// <summary>
+    /// Replaces the product provider with an explicit lifetime. Scoped providers share the current operation's scope;
+    /// transient providers are created per resolution and disposed by that scope. No products or prices are cached.
+    /// </summary>
+    public static TelegramBotBuilder UseStarsProducts<TProducts>(this TelegramBotBuilder builder, ServiceLifetime lifetime) where TProducts : class, IStarsProducts
     {
         ArgumentNullException.ThrowIfNull(builder);
-        builder.Services.Replace(ServiceDescriptor.Singleton<IStarsProducts, TProducts>());
+        if (!Enum.IsDefined(lifetime))
+            throw new ArgumentOutOfRangeException(nameof(lifetime));
+        builder.Services.Replace(new ServiceDescriptor(typeof(IStarsProducts), typeof(TProducts), lifetime));
         return builder;
     }
 
@@ -89,7 +98,8 @@ public static class StarsBuilderExtensions
             errors.Add("No action handles payments. Add a [Paid] action, or [Paid(\"code\")] for every product.");
 
         // Product codes can only be checked when the products are known at startup.
-        if (provider.GetService<IStarsProducts>() is StarsCatalog catalog)
+        if (builder.Services.LastOrDefault(descriptor => descriptor.ServiceType == typeof(IStarsProducts))?.Lifetime == ServiceLifetime.Singleton &&
+            provider.GetService<IStarsProducts>() is StarsCatalog catalog)
         {
             var codes = catalog.Products.Select(product => product.Code).ToHashSet(StringComparer.Ordinal);
 

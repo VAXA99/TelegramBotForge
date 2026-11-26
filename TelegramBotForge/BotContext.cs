@@ -136,6 +136,9 @@ public sealed class BotContext
     /// </summary>
     public Contact? Contact => Update.Message?.Contact;
 
+    /// <summary>The original users-selection response, including its request ID and shared user fields.</summary>
+    public UsersShared? UsersShared => Update.Message?.UsersShared;
+
     /// <summary>
     /// Gets the new version of a message the user edited, if the update is an edit.
     /// </summary>

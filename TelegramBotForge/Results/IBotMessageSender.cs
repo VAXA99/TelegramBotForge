@@ -35,6 +35,7 @@ internal sealed class TelegramBotMessageSender(ITelegramBotClient bot, IServiceS
         var scope = scopes.CreateAsyncScope();
         var update = new Update { Message = new Telegram.Bot.Types.Message { Chat = new Chat { Id = chatId, Type = chatId > 0 ? ChatType.Private : ChatType.Supergroup } } };
         var context = new BotContext(update, bot, scope.ServiceProvider, ct);
+        scope.ServiceProvider.GetRequiredService<Hosting.BotContextScope>().Initialize(context);
         await ResultLifecycleExtensions.WithDeliveryAsync(context, () => ResultLifecycleExtensions.FinishAsync(async () =>
         {
             var executor = scope.ServiceProvider.GetRequiredService<IBotResultExecutor>();

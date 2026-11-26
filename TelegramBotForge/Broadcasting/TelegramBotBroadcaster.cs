@@ -193,6 +193,7 @@ internal sealed class TelegramBotBroadcaster : IBotBroadcaster
         var update = new Update { Message = new Message { Chat = new Chat { Id = chatId, Type = chatId > 0 ? Telegram.Bot.Types.Enums.ChatType.Private : Telegram.Bot.Types.Enums.ChatType.Supergroup } } };
         var bot = new CapturingBotClient(_bot, id => sentId = id);
         var context = new BotContext(update, bot, services, ct);
+        services.GetRequiredService<Hosting.BotContextScope>().Initialize(context);
         await ResultLifecycleExtensions.WithDeliveryAsync(context, () => ResultLifecycleExtensions.FinishAsync(async () =>
         {
             var executor = services.GetRequiredService<IBotResultExecutor>();

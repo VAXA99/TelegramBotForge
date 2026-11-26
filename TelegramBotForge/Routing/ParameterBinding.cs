@@ -59,6 +59,7 @@ internal static class ParameterBinding
             _ when type == typeof(Location) => (context, _) => context.Location,
             _ when type == typeof(Venue) => (context, _) => context.Message?.Venue,
             _ when type == typeof(Contact) => (context, _) => context.Contact,
+            _ when type == typeof(UsersShared) => (context, _) => context.UsersShared,
             _ when type == typeof(ChatMemberUpdated) => (context, _) => context.MembershipChange,
             _ when type == typeof(InlineQuery) => (context, _) => context.InlineQuery,
             _ when type == typeof(IReadOnlyList<BotMedia>) || type == typeof(IEnumerable<BotMedia>) => (context, _) => context.Album,
@@ -87,7 +88,7 @@ internal static class ParameterBinding
 
         error = $"parameter '{name}' ({type.Name}) has no source. If it is a service, register it, or put it in the controller's constructor. " +
                 "Otherwise an action can take {placeholders} of its route, 'string text', 'string args' / 'string[] args' (after a command), " +
-                "'string query' (inline queries), BotMedia, IReadOnlyList<BotMedia> (albums), Location, Venue, Contact, ChatMemberUpdated, InlineQuery, " +
+                "'string query' (inline queries), BotMedia, IReadOnlyList<BotMedia> (albums), Location, Venue, Contact, UsersShared, ChatMemberUpdated, InlineQuery, " +
                 "StarsOrder, StarsPayment, CultureInfo, BotContext, CancellationToken, Update, Message, CallbackQuery, User or Chat.";
         return false;
     }

@@ -11,7 +11,7 @@ namespace TelegramBotForge.Controllers;
 /// <remarks>
 /// The router tries the actions from the highest <see cref="Priority"/> down and runs the first whose route matches.
 /// The built-in priorities: commands, buttons, reply-keyboard buttons and payments 100; <c>[Regex]</c> 30; media of a type 30;
-/// any media, locations and contacts 20; text 10. An action limited by <c>[State]</c> gets 50 more.
+/// any media, locations, contacts and users selections 20; text 10. An action limited by <c>[State]</c> gets 50 more.
 /// </remarks>
 /// <example>
 /// <code>

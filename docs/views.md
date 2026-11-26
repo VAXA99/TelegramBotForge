@@ -2,7 +2,8 @@
 
 Views are discovered in the same assemblies as controllers and use constructor injection. The default lifetime is scoped;
 `[View(Lifetime = ServiceLifetime.Singleton)]` remains available. `View` is a convenience base with an instance `Message()`
-factory. It has no required override. Public methods can take zero, one, or several arguments and return a message directly.
+factory. It has no required override. Public methods can take zero, one, or several arguments and return `Message`,
+`Task<Message>` or `ValueTask<Message>`.
 
 ```csharp
 using TelegramBotForge.Views;
@@ -27,6 +28,35 @@ public sealed class MenuController(MenuView menu) : BotController
 
 There is no renderer dependency, generated companion method, rendering option, or terminal build call.
 `Reply(string)` and `Edit(string)` retain their existing HTML behavior; use a message factory for escaped text.
+
+## Asynchronous screens
+
+Load data and build the screen in one method. The controller explicitly awaits construction and chooses delivery:
+
+```csharp
+[View(Rich = true)]
+public sealed class ProfileView(IProfileService profiles) : View
+{
+    public async Task<Message> OpenAsync(long userId, CancellationToken ct)
+    {
+        var profile = await profiles.GetAsync(userId, ct);
+        return Message().Heading(profile.Name).Paragraph(profile.Description);
+    }
+}
+
+public sealed class ProfileController(ProfileView view) : BotController
+{
+    [Command("profile")]
+    public async Task<IBotResult> Open(CancellationToken ct) =>
+        Reply(await view.OpenAsync(Context.UserId!.Value, ct));
+}
+```
+
+`ValueTask<Message>` works identically. `Message()` keeps the declared screen name after asynchronous waits;
+no synchronous adapter, screen-name argument or extra model is needed. Mode annotations, inheritance and unique-name
+checks apply to all three return types. Startup validation and caching inspect metadata only, never invoke a screen.
+Construction errors and cancellation remain action errors/cancellation in the existing pipeline; no screen delivery
+happens before construction succeeds. Synchronous screens are unchanged.
 
 ## Mode and method identity
 
@@ -59,7 +89,7 @@ Class annotation inheritance includes the DI lifetime.
 
 `Message()` uses compiler-supplied `CallerMemberName` and the runtime view type. Metadata is cached per type, validated during
 automatic discovery, and also validated lazily for directly constructed views. Public instance screen methods returning
-`TelegramBotForge.Views.Message` must have unique names across their inheritance hierarchy. Overloads and hidden names are
+`Message`, `Task<Message>` or `ValueTask<Message>` must have unique names across their inheritance hierarchy. Overloads and hidden names are
 rejected; generic screen methods are not supported. Overrides represent the same screen. There is no stack inspection or
 ambient rendering state. Call the factory directly from the screen method, not from a lambda, property, or private helper.
 Private helpers append to a supplied message and return the resulting message.

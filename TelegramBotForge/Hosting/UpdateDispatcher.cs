@@ -69,6 +69,7 @@ internal sealed class UpdateDispatcher
             BotUsername = _identity?.Username,
             AlbumMessages = album
         };
+        scope.ServiceProvider.GetRequiredService<BotContextScope>().Initialize(context);
         using var logScope = _logger.BeginScope(new UpdateLogScope(context.ChatId ?? 0, context.UserId ?? 0));
 
         IBotResult? result = null;

@@ -38,12 +38,14 @@ public sealed class StateMiddleware : IBotMiddleware
         var key = new StateKey(chatId, userId);
         var state = await _storage.GetAsync(key, ct) ?? new ChatState();
         context.State = state;
+        var inputCleanup = state.Data.ContainsKey(Input.TemporaryInput.SessionKey) &&
+            context.Services.GetService(typeof(Input.TemporaryInput)) is Input.TemporaryInput input ? input.BeforeRouting() : null;
 
         var result = await next(context, ct);
 
         await SaveAsync(ct);
         context.SaveStateAfterResult = SaveAsync;
-        return result;
+        return inputCleanup is null ? result : result is null ? inputCleanup : inputCleanup.Then(result);
 
         async Task SaveAsync(CancellationToken token)
         {

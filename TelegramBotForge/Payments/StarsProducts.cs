@@ -38,6 +38,7 @@ public sealed record StarsProduct(string Code, string Title, string Description,
 /// <summary>
 /// Where the bot finds its products. The default is the list given to <c>AddStars</c>; register your own with
 /// <c>UseStarsProducts&lt;T&gt;()</c>, for example to read products and prices from a database.
+/// The no-argument registration is singleton; pass ServiceLifetime.Scoped for operation-scoped dependencies.
 /// </summary>
 public interface IStarsProducts
 {

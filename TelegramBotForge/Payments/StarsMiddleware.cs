@@ -12,6 +12,7 @@ namespace TelegramBotForge.Payments;
 /// Built-in middleware, added by <c>AddStars</c>, right before the conversation state.
 /// Before payment, it checks the order and makes sure the check is always answered.
 /// After payment, it skips duplicates and makes sure the payment reaches a <c>[Paid]</c> action.
+/// Registered as scoped so the product provider and its dependencies belong to the current operation.
 /// </summary>
 public sealed class StarsMiddleware : IBotMiddleware
 {

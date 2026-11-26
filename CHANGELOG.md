@@ -4,6 +4,17 @@ All notable changes to TelegramBotForge. The public API of each package is liste
 
 ## Unreleased
 
+- Add `UseStarsProducts<T>(ServiceLifetime)` with singleton, scoped and transient registrations; the existing overload remains singleton.
+- Make `StarsMiddleware` scoped so invoice, checkout and payment product lookups use their existing operation scope without captive scoped dependencies. Startup skips scoped/transient providers while retaining static catalog and payment-route checks.
+- Add non-positional `BotMedia.SourceMessageId` for every incoming media type and album element; preserve the constructor and deconstruction. Source IDs participate in record equality/hashing and survive `with` copies.
+- See [scoped Stars providers and media sources](docs/stars-and-media.md) for lifetime semantics, application-controlled album deletion and compatibility notes.
+
+- Support annotated asynchronous screens returning `Task<Message>` and `ValueTask<Message>`, with inherited modes, unique-name validation and compiler-supplied screen identity.
+- Inject `BotContext` directly into scoped services before user middleware construction, isolating update/background-delivery scopes and rejecting resolution outside operations.
+- Add `[UsersShared]`, original Telegram parameter binding and `BotContext.UsersShared`, compatible with state, filters and chat constraints.
+- Add scoped `ITemporaryInput` begin/match/complete/cancel operations, receipt-tracked prompts, previous-state restoration, stale-response protection and opt-in command interruption.
+- Document lazy expiry, second-request rejection and explicit location reply correlation in [temporary input](docs/temporary-input.md).
+
 - Keep the selected update culture through result execution, delivery/finalization callbacks, final state persistence and scope disposal, restoring it on success and failure.
 - Add `IBotResult.OnDelivered` for actual receipts from sends, edits and replacements; sequences notify per confirmed receipt in order.
 - Add structured and legacy `RequestUsers` buttons with complete option snapshots and existing reply-keyboard validation.

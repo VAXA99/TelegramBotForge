@@ -21,14 +21,14 @@ internal static class ViewMetadata
     {
         var screens = Screens.GetOrAdd(type, Read);
         return screens.TryGetValue(screen, out var rich) ? rich : throw new InvalidOperationException(
-            $"View {type.FullName}.{screen}: Message() must be called directly by a public, uniquely named screen returning TelegramBotForge.Views.Message. Helpers append to an existing message.");
+            $"View {type.FullName}.{screen}: Message() must be called directly by a public, uniquely named screen returning Message, Task<Message> or ValueTask<Message>. Helpers append to an existing message.");
     }
 
     private static IReadOnlyDictionary<string, bool> Read(Type type)
     {
         var result = new Dictionary<string, bool>();
         var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Where(method => method.ReturnType == typeof(Message));
+            .Where(method => method.ReturnType == typeof(Message) || method.ReturnType == typeof(Task<Message>) || method.ReturnType == typeof(ValueTask<Message>));
         foreach (var group in methods.GroupBy(method => method.Name))
         {
             if (group.Count() != 1 || type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
